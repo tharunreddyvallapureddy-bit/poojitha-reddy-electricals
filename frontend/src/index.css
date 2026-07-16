@@ -2109,3 +2109,22 @@ button, input, textarea, select {
   font-size: 0.95rem;
   color: var(--text-secondary);
 }
+
+.btn-link-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: var(--accent-cyan);
+  padding: 0;
+  margin-left: 4px;
+  transition: var(--transition-smooth);
+}
+
+.btn-link-toggle:hover {
+  text-decoration: underline;
+  color: var(--accent-purple);
+  text-shadow: 0 0 8px var(--accent-cyan-glow);
+}

@@ -173,7 +173,7 @@ const Auth = ({ setUser, API_URL }) => {
 
             <div className="minimal-auth-footer text-center">
               Don't have an account?{' '}
-              <button onClick={toggleAuthMode} className="btn-link-action text-gradient">
+              <button onClick={toggleAuthMode} className="btn-link-toggle">
                 Sign up here
               </button>
             </div>
@@ -261,7 +261,7 @@ const Auth = ({ setUser, API_URL }) => {
 
             <div className="minimal-auth-footer text-center">
               Already have an account?{' '}
-              <button onClick={toggleAuthMode} className="btn-link-action text-gradient">
+              <button onClick={toggleAuthMode} className="btn-link-toggle">
                 Sign in here
               </button>
             </div>
