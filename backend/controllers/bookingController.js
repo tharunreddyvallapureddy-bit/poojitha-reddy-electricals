@@ -61,7 +61,15 @@ const getBookings = async (req, res) => {
 // @access  Private (User)
 const getMyBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ userId: req.user._id });
+    // Automatically link any previous guest bookings that match this user's phone number
+    if (req.user && req.user.phone) {
+      await Booking.updateMany(
+        { userId: null, customerPhone: req.user.phone },
+        { userId: req.user._id }
+      );
+    }
+
+    const bookings = await Booking.find({ userId: req.user._id }).sort({ createdAt: -1 });
     res.json(bookings);
   } catch (error) {
     console.error('Get my bookings error:', error);

@@ -84,6 +84,28 @@ const createModelProxy = (collectionName, MongoModel) => {
       writeData(db);
       return items[idx];
     },
+    updateMany: async (query, update) => {
+      const db = readData();
+      const items = db[collectionName] || [];
+      let modifiedCount = 0;
+      const updatedItems = items.map(item => {
+        let match = true;
+        for (let key in query) {
+          if (query[key] !== undefined && item[key] !== query[key]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          modifiedCount++;
+          return { ...item, ...update };
+        }
+        return item;
+      });
+      db[collectionName] = updatedItems;
+      writeData(db);
+      return { modifiedCount };
+    },
     deleteOne: async (query = {}) => {
       const db = readData();
       const items = db[collectionName] || [];
@@ -107,6 +129,7 @@ const createModelProxy = (collectionName, MongoModel) => {
     findOne: (query) => getIsConnected() ? MongoModel.findOne(query) : FallbackActions.findOne(query),
     findById: (id) => getIsConnected() ? MongoModel.findById(id) : FallbackActions.findById(id),
     findByIdAndUpdate: (id, update) => getIsConnected() ? MongoModel.findByIdAndUpdate(id, update, { new: true }) : FallbackActions.findByIdAndUpdate(id, update),
+    updateMany: (query, update) => getIsConnected() ? MongoModel.updateMany(query, update) : FallbackActions.updateMany(query, update),
     deleteOne: (query) => getIsConnected() ? MongoModel.deleteOne(query) : FallbackActions.deleteOne(query),
     mongoModel: MongoModel
   };

@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Admin = require('../models/Admin');
+const Booking = require('../models/Booking');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -37,6 +38,12 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      // Link any previous guest bookings that match this user's phone number
+      await Booking.updateMany(
+        { userId: null, customerPhone: user.phone },
+        { userId: user._id }
+      );
+
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -75,6 +82,12 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+
+    // Link any previous guest bookings that match this user's phone number
+    await Booking.updateMany(
+      { userId: null, customerPhone: user.phone },
+      { userId: user._id }
+    );
 
     res.json({
       _id: user._id,
