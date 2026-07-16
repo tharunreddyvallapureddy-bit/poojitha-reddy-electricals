@@ -171,17 +171,10 @@ const Auth = ({ setUser, API_URL }) => {
               </div>
             </form>
 
-            <div className="quick-access-divider">Access Quickly</div>
-            <div className="social-login-row">
-              <button onClick={() => alert("Social log-in is coming soon.")} className="social-btn">Google</button>
-              <button onClick={() => alert("Social log-in is coming soon.")} className="social-btn">Linkedin</button>
-              <button onClick={() => alert("Social log-in is coming soon.")} className="social-btn">SSO</button>
-            </div>
-
             <div className="minimal-auth-footer text-center">
               Don't have an account?{' '}
               <button onClick={toggleAuthMode} className="btn-link-action text-gradient">
-                Signup
+                Sign up here
               </button>
             </div>
           </div>
@@ -266,17 +259,10 @@ const Auth = ({ setUser, API_URL }) => {
               </div>
             </form>
 
-            <div className="quick-access-divider">Access Quickly</div>
-            <div className="social-login-row">
-              <button onClick={() => alert("Social sign-up is coming soon.")} className="social-btn">Google</button>
-              <button onClick={() => alert("Social sign-up is coming soon.")} className="social-btn">Linkedin</button>
-              <button onClick={() => alert("Social sign-up is coming soon.")} className="social-btn">SSO</button>
-            </div>
-
             <div className="minimal-auth-footer text-center">
               Already have an account?{' '}
               <button onClick={toggleAuthMode} className="btn-link-action text-gradient">
-                Sign in
+                Sign in here
               </button>
             </div>
           </div>
