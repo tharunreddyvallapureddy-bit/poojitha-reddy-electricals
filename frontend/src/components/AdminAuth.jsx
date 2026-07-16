@@ -110,10 +110,6 @@ const AdminAuth = ({ setAdmin, API_URL }) => {
             {loading ? 'Logging in as Admin...' : 'Authenticate'}
           </button>
         </form>
-
-        <div className="admin-auth-info text-center text-muted" style={{ marginTop: '24px', fontSize: '0.85rem' }}>
-          ⚠️ Default login: <code>admin</code> / <code>Vinay@8498870697</code>
-        </div>
       </div>
     </div>
   );
