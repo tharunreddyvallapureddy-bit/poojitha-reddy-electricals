@@ -271,6 +271,11 @@ button, input, textarea, select {
   box-shadow: 0 0 12px var(--accent-purple-glow);
 }
 
+.form-select option {
+  background-color: #0d0d18;
+  color: var(--text-primary);
+}
+
 .form-textarea {
   min-height: 120px;
   resize: vertical;
