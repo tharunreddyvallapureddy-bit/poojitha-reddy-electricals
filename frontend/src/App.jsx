@@ -16,7 +16,7 @@ import AdminDashboard from './components/AdminDashboard';
 // Dynamic API URL detection: fallback to local port 5000 in development
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
-  : '';
+  : 'https://poojitha-reddy-electricals-backend.onrender.com'; // Replace this URL with your Render API URL once deployed
 
 function App() {
   const [user, setUser] = useState(null);
