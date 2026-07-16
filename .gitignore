@@ -1,0 +1,18 @@
+# Dependency directories
+**/node_modules/
+node_modules/
+
+# Local databases
+backend/database_fallback.json
+
+# Environment variables / API Secrets
+backend/.env
+.env
+
+# Build outputs
+frontend/dist/
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
