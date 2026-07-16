@@ -1,133 +1,189 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { UserIcon, MailIcon, PhoneIcon, LockIcon } from './Icons';
 
 const Auth = ({ setUser, API_URL }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
+  // Sign In Form State
+  const [signInData, setSignInData] = useState({
+    email: '',
+    password: '',
+  });
+  const [signInError, setSignInError] = useState('');
+  const [signInLoading, setSignInLoading] = useState(false);
+
+  // Sign Up Form State
+  const [signUpData, setSignUpData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
   });
+  const [signUpError, setSignUpError] = useState('');
+  const [signUpLoading, setSignUpLoading] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleToggle = () => {
-    setIsLogin(!isLogin);
-    setError('');
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: '',
-    });
-  };
-
-  const handleChange = (e) => {
+  const handleSignInChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setSignInData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSignUpChange = (e) => {
+    const { name, value } = e.target;
+    setSignUpData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSignInSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setSignInError('');
+    setSignInLoading(true);
 
-    const { name, email, phone, password, confirmPassword } = formData;
+    const { email, password } = signInData;
 
-    // Validation
-    if (isLogin) {
-      if (!email || !password) {
-        setError('Please fill in all fields.');
-        setLoading(false);
-        return;
-      }
-    } else {
-      if (!name || !email || !phone || !password || !confirmPassword) {
-        setError('Please fill in all fields.');
-        setLoading(false);
-        return;
-      }
-      if (password !== confirmPassword) {
-        setError('Passwords do not match.');
-        setLoading(false);
-        return;
-      }
+    if (!email || !password) {
+      setSignInError('Please enter all fields.');
+      setSignInLoading(false);
+      return;
     }
 
-    const endpoint = isLogin ? '/api/auth/user/login' : '/api/auth/user/register';
-    const bodyData = isLogin ? { email, password } : { name, email, phone, password };
-
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const response = await fetch(`${API_URL}/api/auth/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(bodyData),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Authentication failed.');
+        throw new Error(data.message || 'Login failed.');
       }
 
-      // Store in localStorage
       localStorage.setItem('userToken', data.token);
       localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email, phone: data.phone }));
       
-      // Update App state
       setUser(data);
-      
-      // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      setSignInError(err.message);
     } finally {
-      setLoading(false);
+      setSignInLoading(false);
+    }
+  };
+
+  const handleSignUpSubmit = async (e) => {
+    e.preventDefault();
+    setSignUpError('');
+    setSignUpLoading(true);
+
+    const { name, email, phone, password, confirmPassword } = signUpData;
+
+    if (!name || !email || !phone || !password || !confirmPassword) {
+      setSignUpError('Please fill in all fields.');
+      setSignUpLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setSignUpError('Passwords do not match.');
+      setSignUpLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/user/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, phone, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed.');
+      }
+
+      localStorage.setItem('userToken', data.token);
+      localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email, phone: data.phone }));
+      
+      setUser(data);
+      navigate('/dashboard');
+    } catch (err) {
+      setSignUpError(err.message);
+    } finally {
+      setSignUpLoading(false);
     }
   };
 
   return (
-    <div className="section container max-w-500 auth-page-container">
-      <div className="glass-card auth-card">
-        {/* Toggle Header Tabs */}
-        <div className="auth-tabs">
-          <button 
-            type="button" 
-            className={`auth-tab-btn ${isLogin ? 'active' : ''}`}
-            onClick={() => !isLogin && handleToggle()}
-          >
-            Sign In
-          </button>
-          <button 
-            type="button" 
-            className={`auth-tab-btn ${!isLogin ? 'active' : ''}`}
-            onClick={() => isLogin && handleToggle()}
-          >
-            Sign Up
-          </button>
+    <div className="section container max-w-1000 auth-page-container">
+      <div className="glass-card auth-split-card">
+        {/* Sign In Column */}
+        <div className="auth-split-col">
+          <h2 className="auth-column-title text-gradient">Customer Sign In</h2>
+          <p className="auth-column-subtitle text-secondary">
+            Sign in to manage your bookings and view your history.
+          </p>
+
+          {signInError && <div className="alert-box alert-danger">{signInError}</div>}
+
+          <form onSubmit={handleSignInSubmit} className="auth-form">
+            <div className="form-group">
+              <label className="form-label">
+                <MailIcon size={14} /> Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={signInData.email}
+                onChange={handleSignInChange}
+                className="form-input"
+                placeholder="customer@example.com"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                <LockIcon size={14} /> Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={signInData.password}
+                onChange={handleSignInChange}
+                className="form-input"
+                placeholder="Enter password"
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary w-full" disabled={signInLoading} style={{ marginTop: '16px' }}>
+              {signInLoading ? 'Signing In...' : 'Sign In'}
+            </button>
+          </form>
         </div>
 
-        <h2 className="auth-title text-center text-gradient" style={{ margin: '24px 0 8px 0' }}>
-          {isLogin ? 'Welcome Back!' : 'Create Customer Account'}
-        </h2>
-        <p className="auth-subtitle text-center text-secondary" style={{ marginBottom: '32px' }}>
-          {isLogin 
-            ? 'Sign in to manage your bookings and view your history.' 
-            : 'Register to book services quickly and track all requests in one place.'}
-        </p>
+        {/* Vertical Divider */}
+        <div className="auth-split-divider">
+          <span className="divider-or">OR</span>
+        </div>
 
-        {error && <div className="alert-box alert-danger">{error}</div>}
+        {/* Sign Up Column */}
+        <div className="auth-split-col">
+          <h2 className="auth-column-title text-gradient">Register Account</h2>
+          <p className="auth-column-subtitle text-secondary">
+            Create an account to book and track requests easily.
+          </p>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {!isLogin && (
+          {signUpError && <div className="alert-box alert-danger">{signUpError}</div>}
+
+          <form onSubmit={handleSignUpSubmit} className="auth-form">
             <div className="form-group">
               <label className="form-label">
                 <UserIcon size={14} /> Full Name
@@ -135,102 +191,80 @@ const Auth = ({ setUser, API_URL }) => {
               <input
                 type="text"
                 name="name"
-                value={formData.name}
-                onChange={handleChange}
+                value={signUpData.name}
+                onChange={handleSignUpChange}
                 className="form-input"
                 placeholder="e.g. Ramesh Reddy"
                 required
               />
             </div>
-          )}
 
-          <div className="form-group">
-            <label className="form-label">
-              <MailIcon size={14} /> Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="e.g. customer@example.com"
-              required
-            />
-          </div>
-
-          {!isLogin && (
-            <div className="form-group">
-              <label className="form-label">
-                <PhoneIcon size={14} /> Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="e.g. 84988 70697"
-                required
-              />
+            <div className="grid-2" style={{ gap: '16px' }}>
+              <div className="form-group" style={{ marginBottom: '0' }}>
+                <label className="form-label">
+                  <MailIcon size={14} /> Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={signUpData.email}
+                  onChange={handleSignUpChange}
+                  className="form-input"
+                  placeholder="name@email.com"
+                  required
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '0' }}>
+                <label className="form-label">
+                  <PhoneIcon size={14} /> Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={signUpData.phone}
+                  onChange={handleSignUpChange}
+                  className="form-input"
+                  placeholder="e.g. 84988 70697"
+                  required
+                />
+              </div>
             </div>
-          )}
 
-          <div className="form-group">
-            <label className="form-label">
-              <LockIcon size={14} /> Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Enter secure password"
-              required
-            />
-          </div>
-
-          {!isLogin && (
-            <div className="form-group">
-              <label className="form-label">
-                <LockIcon size={14} /> Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Re-enter password"
-                required
-              />
+            <div className="grid-2" style={{ gap: '16px', marginTop: '16px' }}>
+              <div className="form-group" style={{ marginBottom: '0' }}>
+                <label className="form-label">
+                  <LockIcon size={14} /> Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={signUpData.password}
+                  onChange={handleSignUpChange}
+                  className="form-input"
+                  placeholder="Create password"
+                  required
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '0' }}>
+                <label className="form-label">
+                  <LockIcon size={14} /> Confirm Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={signUpData.confirmPassword}
+                  onChange={handleSignUpChange}
+                  className="form-input"
+                  placeholder="Re-type password"
+                  required
+                />
+              </div>
             </div>
-          )}
 
-          <button type="submit" className="btn btn-primary w-full" disabled={loading} style={{ marginTop: '16px' }}>
-            {loading 
-              ? (isLogin ? 'Signing In...' : 'Registering...') 
-              : (isLogin ? 'Sign In' : 'Create Account')}
-          </button>
-        </form>
-
-        <div className="auth-footer text-center" style={{ marginTop: '24px' }}>
-          {isLogin ? (
-            <p className="text-secondary">
-              Don't have a customer account?{' '}
-              <button onClick={handleToggle} className="btn-link-action text-gradient">
-                Sign Up
-              </button>
-            </p>
-          ) : (
-            <p className="text-secondary">
-              Already have an account?{' '}
-              <button onClick={handleToggle} className="btn-link-action text-gradient">
-                Sign In
-              </button>
-            </p>
-          )}
+            <button type="submit" className="btn btn-accent w-full" disabled={signUpLoading} style={{ marginTop: '24px' }}>
+              {signUpLoading ? 'Creating Account...' : 'Sign Up / Register'}
+            </button>
+          </form>
         </div>
       </div>
     </div>
