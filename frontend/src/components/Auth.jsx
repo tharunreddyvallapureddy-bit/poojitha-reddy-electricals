@@ -120,14 +120,20 @@ const Auth = ({ setUser, API_URL }) => {
     }
   };
 
+  const scrollToCol = (targetClass) => {
+    const el = document.querySelector(targetClass);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <div className="section container max-w-1000 auth-page-container">
-      <div className="glass-card auth-split-card">
-        {/* Sign In Column */}
-        <div className="auth-split-col">
-          <h2 className="auth-column-title text-gradient">Customer Sign In</h2>
-          <p className="auth-column-subtitle text-secondary">
-            Sign in to manage your bookings and view your history.
+    <div className="section container auth-page-container">
+      <div className="auth-cards-container">
+        
+        {/* Card 1: Login */}
+        <div className="auth-card-individual glass-card login-card-col">
+          <h2 className="auth-card-title text-gradient">Login</h2>
+          <p className="auth-card-subtitle text-secondary">
+            Sign in to manage your bookings and view history.
           </p>
 
           {signInError && <div className="alert-box alert-danger">{signInError}</div>}
@@ -143,7 +149,7 @@ const Auth = ({ setUser, API_URL }) => {
                 value={signInData.email}
                 onChange={handleSignInChange}
                 className="form-input"
-                placeholder="customer@example.com"
+                placeholder="Enter your email"
                 required
               />
             </div>
@@ -158,27 +164,29 @@ const Auth = ({ setUser, API_URL }) => {
                 value={signInData.password}
                 onChange={handleSignInChange}
                 className="form-input"
-                placeholder="Enter password"
+                placeholder="Enter your password"
                 required
               />
             </div>
 
             <button type="submit" className="btn btn-primary w-full" disabled={signInLoading} style={{ marginTop: '16px' }}>
-              {signInLoading ? 'Signing In...' : 'Sign In'}
+              {signInLoading ? 'Signing In...' : 'Login'}
             </button>
           </form>
+
+          <div className="auth-card-footer text-center">
+            Don't have an account?{' '}
+            <button onClick={() => scrollToCol('.signup-card-col')} className="btn-link-action text-gradient">
+              Signup
+            </button>
+          </div>
         </div>
 
-        {/* Vertical Divider */}
-        <div className="auth-split-divider">
-          <span className="divider-or">OR</span>
-        </div>
-
-        {/* Sign Up Column */}
-        <div className="auth-split-col">
-          <h2 className="auth-column-title text-gradient">Register Account</h2>
-          <p className="auth-column-subtitle text-secondary">
-            Create an account to book and track requests easily.
+        {/* Card 2: Signup */}
+        <div className="auth-card-individual glass-card signup-card-col">
+          <h2 className="auth-card-title text-gradient">Signup</h2>
+          <p className="auth-card-subtitle text-secondary">
+            Create an account to book handyman services.
           </p>
 
           {signUpError && <div className="alert-box alert-danger">{signUpError}</div>}
@@ -194,43 +202,42 @@ const Auth = ({ setUser, API_URL }) => {
                 value={signUpData.name}
                 onChange={handleSignUpChange}
                 className="form-input"
-                placeholder="e.g. Ramesh Reddy"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                <MailIcon size={14} /> Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={signUpData.email}
+                onChange={handleSignUpChange}
+                className="form-input"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                <PhoneIcon size={14} /> Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={signUpData.phone}
+                onChange={handleSignUpChange}
+                className="form-input"
+                placeholder="Enter your phone"
                 required
               />
             </div>
 
             <div className="grid-2" style={{ gap: '16px' }}>
-              <div className="form-group" style={{ marginBottom: '0' }}>
-                <label className="form-label">
-                  <MailIcon size={14} /> Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={signUpData.email}
-                  onChange={handleSignUpChange}
-                  className="form-input"
-                  placeholder="name@email.com"
-                  required
-                />
-              </div>
-              <div className="form-group" style={{ marginBottom: '0' }}>
-                <label className="form-label">
-                  <PhoneIcon size={14} /> Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={signUpData.phone}
-                  onChange={handleSignUpChange}
-                  className="form-input"
-                  placeholder="e.g. 84988 70697"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid-2" style={{ gap: '16px', marginTop: '16px' }}>
               <div className="form-group" style={{ marginBottom: '0' }}>
                 <label className="form-label">
                   <LockIcon size={14} /> Password
@@ -241,7 +248,7 @@ const Auth = ({ setUser, API_URL }) => {
                   value={signUpData.password}
                   onChange={handleSignUpChange}
                   className="form-input"
-                  placeholder="Create password"
+                  placeholder="Create a password"
                   required
                 />
               </div>
@@ -255,17 +262,25 @@ const Auth = ({ setUser, API_URL }) => {
                   value={signUpData.confirmPassword}
                   onChange={handleSignUpChange}
                   className="form-input"
-                  placeholder="Re-type password"
+                  placeholder="Confirm your password"
                   required
                 />
               </div>
             </div>
 
             <button type="submit" className="btn btn-accent w-full" disabled={signUpLoading} style={{ marginTop: '24px' }}>
-              {signUpLoading ? 'Creating Account...' : 'Sign Up / Register'}
+              {signUpLoading ? 'Registering...' : 'Signup'}
             </button>
           </form>
+
+          <div className="auth-card-footer text-center">
+            Already have an account?{' '}
+            <button onClick={() => scrollToCol('.login-card-col')} className="btn-link-action text-gradient">
+              Login
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
   );
