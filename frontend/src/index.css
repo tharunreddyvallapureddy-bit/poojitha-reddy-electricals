@@ -1948,56 +1948,164 @@ button, input, textarea, select {
     display: none; /* Hide complex progress line on mobile and rely on badges */
   }
   
-  .auth-cards-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 32px;
-  }
-  .auth-card-individual {
-    width: 100%;
-    max-width: 480px;
+  .minimalist-auth-card {
+    padding: 32px 24px;
   }
 }
 
 /* ==========================================================================
-   Dual Auth Card Layout
+   Minimalist Auth Card Layout
    ========================================================================== */
-.auth-cards-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 36px;
-  flex-wrap: wrap;
-  padding: 20px 0;
+.minimalist-auth-card {
+  padding: 48px;
+  border-radius: var(--border-radius-md);
+  background: rgba(22, 22, 38, 0.6);
+  border: var(--border-glass);
 }
 
-.auth-card-individual {
+.minimal-auth-title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.minimal-auth-subtitle {
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 36px;
+  color: var(--text-secondary);
+}
+
+.minimal-group {
+  margin-bottom: 28px;
+}
+
+.minimal-input {
+  border: none;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0;
+  background: transparent;
+  padding: 12px 4px;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  transition: var(--transition-smooth);
+}
+
+.minimal-input:focus {
+  border-bottom-color: var(--accent-cyan);
+  box-shadow: none;
+  background: transparent;
+}
+
+.forgot-password-link {
+  text-align: left;
+  margin-top: -12px;
+  margin-bottom: 28px;
+}
+
+.forgot-password-link a {
+  font-size: 0.9rem;
+  color: var(--accent-cyan);
+  transition: var(--transition-smooth);
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+  color: var(--accent-purple);
+}
+
+.minimal-submit-btn {
+  padding: 14px;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+  color: var(--bg-darker);
+  margin-bottom: 20px;
+}
+
+.remember-me-row {
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.remember-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.remember-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--accent-cyan);
+}
+
+.quick-access-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 32px 0 20px 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.quick-access-divider::before, .quick-access-divider::after {
+  content: '';
   flex: 1;
-  min-width: 320px;
-  max-width: 460px;
-  display: flex;
-  flex-direction: column;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
 }
 
-.auth-card-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  text-align: center;
-  margin-bottom: 8px;
+.quick-access-divider:not(:empty)::before {
+  margin-right: 1.2em;
 }
 
-.auth-card-subtitle {
-  font-size: 0.95rem;
-  text-align: center;
+.quick-access-divider:not(:empty)::after {
+  margin-left: 1.2em;
+}
+
+.social-login-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   margin-bottom: 32px;
-  color: var(--text-secondary);
 }
 
-.auth-card-footer {
-  margin-top: 28px;
+.social-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition-smooth);
+  text-align: center;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+.minimal-auth-footer {
   font-size: 0.95rem;
   color: var(--text-secondary);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 20px;
 }

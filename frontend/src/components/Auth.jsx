@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserIcon, MailIcon, PhoneIcon, LockIcon } from './Icons';
+import { MailIcon, UserIcon, PhoneIcon, LockIcon } from './Icons';
 
 const Auth = ({ setUser, API_URL }) => {
+  const [isLogin, setIsLogin] = useState(true);
+  
   // Sign In Form State
   const [signInData, setSignInData] = useState({
     email: '',
@@ -41,12 +43,6 @@ const Auth = ({ setUser, API_URL }) => {
 
     const { email, password } = signInData;
 
-    if (!email || !password) {
-      setSignInError('Please enter all fields.');
-      setSignInLoading(false);
-      return;
-    }
-
     try {
       const response = await fetch(`${API_URL}/api/auth/user/login`, {
         method: 'POST',
@@ -81,12 +77,6 @@ const Auth = ({ setUser, API_URL }) => {
 
     const { name, email, phone, password, confirmPassword } = signUpData;
 
-    if (!name || !email || !phone || !password || !confirmPassword) {
-      setSignUpError('Please fill in all fields.');
-      setSignUpLoading(false);
-      return;
-    }
-
     if (password !== confirmPassword) {
       setSignUpError('Passwords do not match.');
       setSignUpLoading(false);
@@ -120,166 +110,177 @@ const Auth = ({ setUser, API_URL }) => {
     }
   };
 
-  const scrollToCol = (targetClass) => {
-    const el = document.querySelector(targetClass);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
+    setSignInError('');
+    setSignUpError('');
+    setSignInData({ email: '', password: '' });
+    setSignUpData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   };
 
   return (
-    <div className="section container auth-page-container">
-      <div className="auth-cards-container">
+    <div className="section container max-w-500 auth-page-container">
+      <div className="glass-card minimalist-auth-card">
         
-        {/* Card 1: Login */}
-        <div className="auth-card-individual glass-card login-card-col">
-          <h2 className="auth-card-title text-gradient">Login</h2>
-          <p className="auth-card-subtitle text-secondary">
-            Sign in to manage your bookings and view history.
-          </p>
+        {isLogin ? (
+          /* ================= LOGIN FORM ================= */
+          <div className="auth-form-content">
+            <h2 className="minimal-auth-title">Login</h2>
+            <p className="minimal-auth-subtitle">Login to continue</p>
 
-          {signInError && <div className="alert-box alert-danger">{signInError}</div>}
+            {signInError && <div className="alert-box alert-danger">{signInError}</div>}
 
-          <form onSubmit={handleSignInSubmit} className="auth-form">
-            <div className="form-group">
-              <label className="form-label">
-                <MailIcon size={14} /> Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={signInData.email}
-                onChange={handleSignInChange}
-                className="form-input"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
+            <form onSubmit={handleSignInSubmit} className="minimal-form">
+              <div className="form-group minimal-group">
+                <input
+                  type="email"
+                  name="email"
+                  value={signInData.email}
+                  onChange={handleSignInChange}
+                  className="form-input minimal-input"
+                  placeholder="Email"
+                  required
+                />
+              </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                <LockIcon size={14} /> Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={signInData.password}
-                onChange={handleSignInChange}
-                className="form-input"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+              <div className="form-group minimal-group">
+                <input
+                  type="password"
+                  name="password"
+                  value={signInData.password}
+                  onChange={handleSignInChange}
+                  className="form-input minimal-input"
+                  placeholder="Password"
+                  required
+                />
+              </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={signInLoading} style={{ marginTop: '16px' }}>
-              {signInLoading ? 'Signing In...' : 'Login'}
-            </button>
-          </form>
+              <div className="forgot-password-link">
+                <a href="#/auth" onClick={(e) => { e.preventDefault(); alert("Please contact V. Vinay Kumar Reddy at 84988 70697 to reset your credentials."); }}>Forgot password?</a>
+              </div>
 
-          <div className="auth-card-footer text-center">
-            Don't have an account?{' '}
-            <button onClick={() => scrollToCol('.signup-card-col')} className="btn-link-action text-gradient">
-              Signup
-            </button>
-          </div>
-        </div>
+              <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={signInLoading}>
+                {signInLoading ? 'Logging In...' : 'Login'}
+              </button>
 
-        {/* Card 2: Signup */}
-        <div className="auth-card-individual glass-card signup-card-col">
-          <h2 className="auth-card-title text-gradient">Signup</h2>
-          <p className="auth-card-subtitle text-secondary">
-            Create an account to book handyman services.
-          </p>
-
-          {signUpError && <div className="alert-box alert-danger">{signUpError}</div>}
-
-          <form onSubmit={handleSignUpSubmit} className="auth-form">
-            <div className="form-group">
-              <label className="form-label">
-                <UserIcon size={14} /> Full Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={signUpData.name}
-                onChange={handleSignUpChange}
-                className="form-input"
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                <MailIcon size={14} /> Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={signUpData.email}
-                onChange={handleSignUpChange}
-                className="form-input"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                <PhoneIcon size={14} /> Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={signUpData.phone}
-                onChange={handleSignUpChange}
-                className="form-input"
-                placeholder="Enter your phone"
-                required
-              />
-            </div>
-
-            <div className="grid-2" style={{ gap: '16px' }}>
-              <div className="form-group" style={{ marginBottom: '0' }}>
-                <label className="form-label">
-                  <LockIcon size={14} /> Password
+              <div className="remember-me-row">
+                <label className="remember-label">
+                  <input type="checkbox" className="remember-checkbox" defaultChecked />
+                  <span>Remember me</span>
                 </label>
+              </div>
+            </form>
+
+            <div className="quick-access-divider">Access Quickly</div>
+            <div className="social-login-row">
+              <button onClick={() => alert("Social log-in is coming soon.")} className="social-btn">Google</button>
+              <button onClick={() => alert("Social log-in is coming soon.")} className="social-btn">Linkedin</button>
+              <button onClick={() => alert("Social log-in is coming soon.")} className="social-btn">SSO</button>
+            </div>
+
+            <div className="minimal-auth-footer text-center">
+              Don't have an account?{' '}
+              <button onClick={toggleAuthMode} className="btn-link-action text-gradient">
+                Signup
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ================= SIGN UP FORM ================= */
+          <div className="auth-form-content">
+            <h2 className="minimal-auth-title">Sign up</h2>
+            <p className="minimal-auth-subtitle">Sign up to continue</p>
+
+            {signUpError && <div className="alert-box alert-danger">{signUpError}</div>}
+
+            <form onSubmit={handleSignUpSubmit} className="minimal-form">
+              <div className="form-group minimal-group">
+                <input
+                  type="text"
+                  name="name"
+                  value={signUpData.name}
+                  onChange={handleSignUpChange}
+                  className="form-input minimal-input"
+                  placeholder="Name"
+                  required
+                />
+              </div>
+
+              <div className="form-group minimal-group">
+                <input
+                  type="email"
+                  name="email"
+                  value={signUpData.email}
+                  onChange={handleSignUpChange}
+                  className="form-input minimal-input"
+                  placeholder="Email"
+                  required
+                />
+              </div>
+
+              <div className="form-group minimal-group">
+                <input
+                  type="tel"
+                  name="phone"
+                  value={signUpData.phone}
+                  onChange={handleSignUpChange}
+                  className="form-input minimal-input"
+                  placeholder="Phone"
+                  required
+                />
+              </div>
+
+              <div className="form-group minimal-group">
                 <input
                   type="password"
                   name="password"
                   value={signUpData.password}
                   onChange={handleSignUpChange}
-                  className="form-input"
-                  placeholder="Create a password"
+                  className="form-input minimal-input"
+                  placeholder="Password"
                   required
                 />
               </div>
-              <div className="form-group" style={{ marginBottom: '0' }}>
-                <label className="form-label">
-                  <LockIcon size={14} /> Confirm Password
-                </label>
+
+              <div className="form-group minimal-group">
                 <input
                   type="password"
                   name="confirmPassword"
                   value={signUpData.confirmPassword}
                   onChange={handleSignUpChange}
-                  className="form-input"
-                  placeholder="Confirm your password"
+                  className="form-input minimal-input"
+                  placeholder="Confirm Password"
                   required
                 />
               </div>
+
+              <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={signUpLoading}>
+                {signUpLoading ? 'Creating Account...' : 'Sign up'}
+              </button>
+
+              <div className="remember-me-row">
+                <label className="remember-label">
+                  <input type="checkbox" className="remember-checkbox" defaultChecked />
+                  <span>Remember me</span>
+                </label>
+              </div>
+            </form>
+
+            <div className="quick-access-divider">Access Quickly</div>
+            <div className="social-login-row">
+              <button onClick={() => alert("Social sign-up is coming soon.")} className="social-btn">Google</button>
+              <button onClick={() => alert("Social sign-up is coming soon.")} className="social-btn">Linkedin</button>
+              <button onClick={() => alert("Social sign-up is coming soon.")} className="social-btn">SSO</button>
             </div>
 
-            <button type="submit" className="btn btn-accent w-full" disabled={signUpLoading} style={{ marginTop: '24px' }}>
-              {signUpLoading ? 'Registering...' : 'Signup'}
-            </button>
-          </form>
-
-          <div className="auth-card-footer text-center">
-            Already have an account?{' '}
-            <button onClick={() => scrollToCol('.login-card-col')} className="btn-link-action text-gradient">
-              Login
-            </button>
+            <div className="minimal-auth-footer text-center">
+              Already have an account?{' '}
+              <button onClick={toggleAuthMode} className="btn-link-action text-gradient">
+                Sign in
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>
