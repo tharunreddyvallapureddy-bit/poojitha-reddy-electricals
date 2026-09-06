@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow read and write access to all app collections
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    match /admins/{adminId} {
+      allow read, write: if true;
+    }
+
+    match /bookings/{bookingId} {
+      allow read, write: if true;
+    }
+
+    match /reviews/{reviewId} {
+      allow read, write: if true;
+    }
+
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+  }
+}
