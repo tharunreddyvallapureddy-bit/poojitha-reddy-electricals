@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://poojithareddyelectricals.is-a.dev/sitemap.xml
+Sitemap: https://tharunreddyvallapureddy-bit.github.io/poojitha-reddy-electricals/sitemap.xml
