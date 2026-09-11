@@ -192,3 +192,17 @@ export const LoaderIcon = ({ className = '', ...props }) => (
     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
   </SVG>
 );
+
+export const BellIcon = (props) => (
+  <SVG {...props}>
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </SVG>
+);
+
+export const KeyIcon = (props) => (
+  <SVG {...props}>
+    <path d="m21 2-2 2m-1.5 1.5L16 7l2 2-1.5 1.5L15 9l-2 2-1.5-1.5L10 11l-1.5-1.5L7 11" />
+    <circle cx="7.5" cy="15.5" r="5.5" />
+  </SVG>
+);

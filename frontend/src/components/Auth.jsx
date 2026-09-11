@@ -27,6 +27,17 @@ const Auth = ({ user, setUser, API_URL }) => {
   const [signUpError, setSignUpError] = useState('');
   const [signUpLoading, setSignUpLoading] = useState(false);
 
+  // Forgot Password State
+  const [isForgot, setIsForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotCode, setForgotCode] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
+  const [forgotStep, setForgotStep] = useState(1);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState({ type: '', text: '' });
+  const [devForgotCode, setDevForgotCode] = useState('');
+
   const navigate = useNavigate();
 
   // If already logged in, redirect to intended target or dashboard
@@ -140,10 +151,86 @@ const Auth = ({ user, setUser, API_URL }) => {
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+    setIsForgot(false);
     setSignInError('');
     setSignUpError('');
     setSignInData({ email: '', password: '' });
     setSignUpData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  };
+
+  const handleForgotRequest = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotMsg({ type: '', text: '' });
+    setDevForgotCode('');
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/user/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to send reset code');
+      }
+      setForgotStep(2);
+      setForgotMsg({ type: 'success', text: `📬 Verification code sent to ${forgotEmail}!` });
+      if (data.devCode) {
+        setDevForgotCode(data.devCode);
+      }
+    } catch (err) {
+      setForgotMsg({ type: 'danger', text: err.message });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleForgotReset = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotMsg({ type: '', text: '' });
+
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setForgotMsg({ type: 'danger', text: 'Passwords do not match.' });
+      setForgotLoading(false);
+      return;
+    }
+
+    if (forgotNewPassword.length < 6) {
+      setForgotMsg({ type: 'danger', text: 'Password must be at least 6 characters.' });
+      setForgotLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/user/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: forgotEmail.trim(),
+          code: forgotCode.trim(),
+          newPassword: forgotNewPassword
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to reset password');
+      }
+      setForgotMsg({ type: 'success', text: '🎉 Password reset successfully! You can now log in.' });
+      setTimeout(() => {
+        setIsForgot(false);
+        setIsLogin(true);
+        setForgotStep(1);
+        setForgotCode('');
+        setForgotNewPassword('');
+        setForgotConfirmPassword('');
+      }, 2500);
+    } catch (err) {
+      setForgotMsg({ type: 'danger', text: err.message });
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   return (
@@ -162,7 +249,99 @@ const Auth = ({ user, setUser, API_URL }) => {
           </div>
         )}
 
-        {isLogin ? (
+        {isForgot ? (
+          /* ================= FORGOT PASSWORD FORM ================= */
+          <div className="auth-form-content animate-fade-in">
+            <h2 className="minimal-auth-title">Reset Password</h2>
+            <p className="minimal-auth-subtitle">
+              {forgotStep === 1 
+                ? 'Enter your registered email to receive a 6-digit code' 
+                : 'Enter code & create a new password'}
+            </p>
+
+            {forgotMsg.text && (
+              <div className={`alert-box alert-${forgotMsg.type}`} style={{ marginBottom: '16px' }}>
+                {forgotMsg.text}
+              </div>
+            )}
+
+            {devForgotCode && (
+              <div className="alert-box alert-info" style={{ marginBottom: '16px', fontSize: '0.85rem' }}>
+                💡 <strong>Verification Code:</strong> <code>{devForgotCode}</code>
+              </div>
+            )}
+
+            {forgotStep === 1 ? (
+              <form onSubmit={handleForgotRequest} className="minimal-form">
+                <div className="form-group minimal-group">
+                  <input
+                    type="email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="form-input minimal-input"
+                    placeholder="Registered Email Address"
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={forgotLoading}>
+                  {forgotLoading ? 'Sending Code...' : 'Send Verification Code'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleForgotReset} className="minimal-form">
+                <div className="form-group minimal-group">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={forgotCode}
+                    onChange={(e) => setForgotCode(e.target.value.replace(/\D/g, ''))}
+                    className="form-input minimal-input"
+                    placeholder="6-Digit Verification Code"
+                    style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '1.1rem' }}
+                    required
+                  />
+                </div>
+
+                <div className="form-group minimal-group">
+                  <input
+                    type="password"
+                    value={forgotNewPassword}
+                    onChange={(e) => setForgotNewPassword(e.target.value)}
+                    className="form-input minimal-input"
+                    placeholder="New Password (min 6 chars)"
+                    required
+                  />
+                </div>
+
+                <div className="form-group minimal-group">
+                  <input
+                    type="password"
+                    value={forgotConfirmPassword}
+                    onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                    className="form-input minimal-input"
+                    placeholder="Confirm New Password"
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={forgotLoading}>
+                  {forgotLoading ? 'Resetting Password...' : 'Verify Code & Set Password'}
+                </button>
+              </form>
+            )}
+
+            <div className="minimal-auth-footer text-center" style={{ marginTop: '20px' }}>
+              <button
+                type="button"
+                onClick={() => { setIsForgot(false); setForgotStep(1); }}
+                className="btn-link-toggle"
+              >
+                &larr; Back to Login
+              </button>
+            </div>
+          </div>
+        ) : isLogin ? (
           /* ================= LOGIN FORM ================= */
           <div className="auth-form-content">
             <h2 className="minimal-auth-title">Login</h2>
@@ -196,7 +375,17 @@ const Auth = ({ user, setUser, API_URL }) => {
               </div>
 
               <div className="forgot-password-link">
-                <a href="#/auth" onClick={(e) => { e.preventDefault(); alert("Please contact V. Vinay Kumar Reddy at 84988 70697 to reset your credentials."); }}>Forgot password?</a>
+                <a
+                  href="#/auth"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsForgot(true);
+                    setForgotMsg({ type: '', text: '' });
+                    setForgotEmail(signInData.email || '');
+                  }}
+                >
+                  Forgot password?
+                </a>
               </div>
 
               <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={signInLoading}>
