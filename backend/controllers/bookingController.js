@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const { sendAdminBookingNotification } = require('../utils/mailer');
 
 const generateBookingCode = () => {
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -34,6 +35,11 @@ const createBooking = async (req, res) => {
       description: description || '',
       status: 'Pending',
       adminNotes: '',
+    });
+
+    // Trigger admin notification to poojithareddyelectricals@gmail.com and mobile 6281752093
+    sendAdminBookingNotification(booking).catch(err => {
+      console.warn('Booking notification dispatch notice:', err.message);
     });
 
     res.status(201).json(booking);
