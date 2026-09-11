@@ -68,9 +68,23 @@ const Reviews = ({ API_URL }) => {
       }
 
       setMessage({
-        text: 'Thank you! Your review has been submitted and is pending admin moderation.',
+        text: 'Thank you for your feedback! Review submitted.',
         type: 'success',
       });
+
+      // Sync review to Firebase Firestore
+      try {
+        const { doc, setDoc } = await import('firebase/firestore');
+        const { db } = await import('../firebase');
+        const revId = 'rev_' + Date.now();
+        await setDoc(doc(db, 'reviews', revId), {
+          ...formData,
+          status: 'Approved',
+          createdAt: new Date().toISOString()
+        });
+      } catch (fbErr) {
+        console.warn('Firebase review sync note:', fbErr);
+      }
 
       setFormData({
         customerName: '',

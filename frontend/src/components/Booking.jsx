@@ -74,7 +74,18 @@ const Booking = ({ user, API_URL }) => {
       }
 
       setSuccessBooking(data);
-    } catch (err) {
+
+      // Sync booking to Firebase Firestore
+      try {
+        const { doc, setDoc } = await import('firebase/firestore');
+        const { db } = await import('../firebase');
+        await setDoc(doc(db, 'bookings', data.bookingCode || String(data._id || Date.now())), {
+          ...data,
+          createdAt: new Date().toISOString()
+        });
+      } catch (fbErr) {
+        console.warn('Firebase booking sync note:', fbErr);
+      }
       setError(err.message);
     } finally {
       setLoading(false);

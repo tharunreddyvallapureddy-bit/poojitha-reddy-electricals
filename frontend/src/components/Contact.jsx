@@ -49,6 +49,19 @@ const Contact = ({ API_URL }) => {
         type: 'success',
       });
 
+      // Sync message to Firebase Firestore
+      try {
+        const { doc, setDoc } = await import('firebase/firestore');
+        const { db } = await import('../firebase');
+        const msgId = 'msg_' + Date.now();
+        await setDoc(doc(db, 'messages', msgId), {
+          ...formData,
+          createdAt: new Date().toISOString()
+        });
+      } catch (fbErr) {
+        console.warn('Firebase contact sync note:', fbErr);
+      }
+
       setFormData({
         name: '',
         email: '',
