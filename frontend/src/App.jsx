@@ -80,16 +80,20 @@ function App() {
             {/* Customer Facing Landing Page */}
             <Route path="/" element={
               <>
-                <Hero />
-                <Services />
+                <Hero user={user} />
+                <Services user={user} />
                 <Reviews API_URL={API_URL} />
                 <Contact API_URL={API_URL} />
               </>
             } />
 
-            {/* Booking Form Route */}
+            {/* Booking Form Route - Protected: Requires Sign In / Sign Up */}
             <Route path="/book" element={
-              <Booking user={user} API_URL={API_URL} />
+              user ? (
+                <Booking user={user} API_URL={API_URL} />
+              ) : (
+                <Navigate to="/auth?redirect=book" replace />
+              )
             } />
 
             {/* Status Tracker Route */}
@@ -99,7 +103,7 @@ function App() {
 
             {/* Customer Authentication */}
             <Route path="/auth" element={
-              user ? <Navigate to="/dashboard" /> : <Auth setUser={setUser} API_URL={API_URL} />
+              <Auth user={user} setUser={setUser} API_URL={API_URL} />
             } />
 
             {/* Customer Dashboard */}

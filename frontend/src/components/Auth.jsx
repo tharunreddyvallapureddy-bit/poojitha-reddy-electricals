@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MailIcon, UserIcon, PhoneIcon, LockIcon } from './Icons';
 
-const Auth = ({ setUser, API_URL }) => {
+const Auth = ({ user, setUser, API_URL }) => {
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect');
+  const service = searchParams.get('service');
   const [isLogin, setIsLogin] = useState(true);
   
   // Sign In Form State
@@ -26,6 +29,17 @@ const Auth = ({ setUser, API_URL }) => {
 
   const navigate = useNavigate();
 
+  // If already logged in, redirect to intended target or dashboard
+  useEffect(() => {
+    if (user) {
+      if (redirect === 'book') {
+        navigate(service ? `/book?service=${encodeURIComponent(service)}` : '/book', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, redirect, service, navigate]);
+
   const handleSignInChange = (e) => {
     const { name, value } = e.target;
     setSignInData((prev) => ({ ...prev, [name]: value }));
@@ -34,6 +48,14 @@ const Auth = ({ setUser, API_URL }) => {
   const handleSignUpChange = (e) => {
     const { name, value } = e.target;
     setSignUpData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePostAuthNavigation = () => {
+    if (redirect === 'book') {
+      navigate(service ? `/book?service=${encodeURIComponent(service)}` : '/book');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const handleSignInSubmit = async (e) => {
@@ -62,7 +84,7 @@ const Auth = ({ setUser, API_URL }) => {
       localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email, phone: data.phone }));
       
       setUser(data);
-      navigate('/dashboard');
+      handlePostAuthNavigation();
     } catch (err) {
       setSignInError(err.message);
     } finally {
@@ -102,7 +124,7 @@ const Auth = ({ setUser, API_URL }) => {
       localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email, phone: data.phone }));
       
       setUser(data);
-      navigate('/dashboard');
+      handlePostAuthNavigation();
     } catch (err) {
       setSignUpError(err.message);
     } finally {
@@ -122,6 +144,12 @@ const Auth = ({ setUser, API_URL }) => {
     <div className="section container max-w-500 auth-page-container">
       <div className="glass-card minimalist-auth-card">
         
+        {redirect === 'book' && (
+          <div className="alert-box alert-info" style={{ marginBottom: '24px', textAlign: 'center', fontWeight: '500' }}>
+            ⚡ Please sign in or register an account to book your handyman service.
+          </div>
+        )}
+
         {isLogin ? (
           /* ================= LOGIN FORM ================= */
           <div className="auth-form-content">

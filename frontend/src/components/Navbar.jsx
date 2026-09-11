@@ -59,7 +59,7 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
           <button onClick={() => handleNavClick('services')} className="nav-link-btn">
             Services
           </button>
-          <Link to="/book" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+          <Link to={user ? "/book" : "/auth?redirect=book"} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
             Book Service
           </Link>
           <Link to="/track" className="nav-link" onClick={() => setMobileMenuOpen(false)}>

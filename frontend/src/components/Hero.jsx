@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { PhoneIcon, ZapIcon, ToolIcon } from './Icons';
 
-const Hero = () => {
+const Hero = ({ user }) => {
   return (
     <section id="hero" className="hero-section">
       <div className="container hero-grid">
@@ -36,7 +36,7 @@ const Hero = () => {
           </div>
 
           <div className="hero-actions">
-            <Link to="/book" className="btn btn-primary btn-lg-glow">
+            <Link to={user ? "/book" : "/auth?redirect=book"} className="btn btn-primary btn-lg-glow">
               <ToolIcon size={18} /> Book a Service
             </Link>
             <Link to="/track" className="btn btn-secondary">

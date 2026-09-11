@@ -35,7 +35,7 @@ const servicesList = [
   }
 ];
 
-const Services = () => {
+const Services = ({ user }) => {
   return (
     <section id="services" className="section bg-dark">
       <div className="container">
@@ -65,7 +65,13 @@ const Services = () => {
               </ul>
 
               <div className="service-card-action">
-                <Link to={`/book?service=${encodeURIComponent(service.title)}`} className="service-btn-link">
+                <Link 
+                  to={user 
+                    ? `/book?service=${encodeURIComponent(service.title)}` 
+                    : `/auth?redirect=book&service=${encodeURIComponent(service.title)}`
+                  } 
+                  className="service-btn-link"
+                >
                   Request This Service &rarr;
                 </Link>
               </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import { CalendarIcon, UserIcon, PhoneIcon, ClipboardIcon, CheckIcon } from './Icons';
 
 const Booking = ({ user, API_URL }) => {
@@ -18,7 +18,13 @@ const Booking = ({ user, API_URL }) => {
   const [error, setError] = useState('');
   const [successBooking, setSuccessBooking] = useState(null);
 
-  // Auto fill details if user is logged in
+  // If not logged in, immediately redirect to sign in / sign up page
+  if (!user) {
+    const serviceQuery = serviceParam ? `&service=${encodeURIComponent(serviceParam)}` : '';
+    return <Navigate to={`/auth?redirect=book${serviceQuery}`} replace />;
+  }
+
+  // Auto fill details from logged in user
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -217,11 +223,9 @@ const Booking = ({ user, API_URL }) => {
             ></textarea>
           </div>
 
-          {!user && (
-            <div className="booking-auth-tip">
-              💡 <strong>Booking as a guest?</strong> You can track this booking via the reference code. Or, <Link to="/auth">Sign In / Sign Up</Link> to save this booking directly to your dashboard history!
-            </div>
-          )}
+          <div className="booking-auth-tip">
+            👤 <strong>Booking as:</strong> {user?.name} ({user?.phone}) — This request will be saved directly to your customer account dashboard!
+          </div>
 
           <button type="submit" className="btn btn-primary w-full" disabled={loading}>
             {loading ? 'Submitting Request...' : 'Confirm & Request Booking'}
