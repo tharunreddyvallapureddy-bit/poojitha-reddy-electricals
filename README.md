@@ -1,51 +1,101 @@
-# Poojitha Reddy Electricals - MERN Fullstack Application
+# Poojitha Reddy Electricals - Web Application
 
-A premium MERN fullstack application built for **Poojitha Reddy Electricals** (Handyman Services managed by V. Vinay Kumar Reddy). Featuring high-class glassmorphic dark UI, automated local-first JSON database failover, customer portal (Sign In/Up), booking requests, status tracking, review submission, contact systems, and a complete admin panel.
-
----
-
-## 🚀 How to Run the Application
-
-The project is structured into two parts: `/backend` and `/frontend`.
-
-### Step 1: Start the Backend Server
-1. Open a terminal and navigate to the `backend` directory:
-   ```bash
-   cd backend
-   ```
-2. Start the Node.js Express server:
-   ```bash
-   npm start
-   ```
-   *Note: The server runs on **port 5000**. If MongoDB is running on your machine, it will connect to it automatically. If MongoDB is offline, it will automatically fall back to using `database_fallback.json` (zero configuration needed!).*
-
-### Step 2: Start the Frontend Client
-1. Open another terminal and navigate to the `frontend` directory:
-   ```bash
-   cd frontend
-   ```
-2. Start the Vite React development server:
-   ```bash
-   npm run dev
-   ```
-3. Open your browser and navigate to the provided link (usually `http://localhost:5173`).
+A modern, fullstack web application built for **Poojitha Reddy Electricals**, a premier handyman and electrical contracting business managed by **V. Vinay Kumar Reddy** in Muddanur, YSR Kadapa, Andhra Pradesh.
 
 ---
 
-## 🔑 Admin Credentials
-To access the admin dashboard (e.g. modify booking status, approve reviews, resolve inbox messages):
-- **URL**: Go to the site, click the lock icon in the top right (or click "Admin Portal" in the footer) to go to `/admin-login`.
-- **Username**: `admin`
-- **Password**: `Vinay@8498870697`
+## 🌐 Live Application Links
+
+- **Primary Website:** [https://poojithareddyelectricals.dpdns.org/](https://poojithareddyelectricals.dpdns.org/)
+- **GitHub Pages Mirror:** [https://tharunreddyvallapureddy-bit.github.io/poojitha-reddy-electricals/](https://tharunreddyvallapureddy-bit.github.io/poojitha-reddy-electricals/)
+- **Admin Portal:** [https://poojithareddyelectricals.dpdns.org/#/admin-login](https://poojithareddyelectricals.dpdns.org/#/admin-login)
 
 ---
 
-## 🛠️ Key Features Built
-1. **Interactive Hero Section:** Showcases V. Vinay Kumar Reddy, handyman certifications, contact numbers, and custom glowing neon hexagon widgets.
-2. **Services Grid:** Visual cards for *All Electrical Works, Industrial Works, Plumbing Works, Welding Works,* and *House Wiring* with booking anchors.
-3. **Interactive Booking Request Form:** Allows guest checkout or customer-account booking (pre-fills customer info). Checks inputs and blocks past dates.
-4. **Reference Code Booking Tracker:** Provides customers with a tracking code to check their request status (Pending, Accepted, In Progress, Completed, Cancelled) and handyman updates in real-time.
-5. **Customer Sign In & Sign Up:** Premium animated panel with input validations. Creates customer dashboards displaying their history and profiles.
-6. **Moderate Reviews System:** Customers can leave ratings and comments. Submissions enter a moderation state and require admin approval before going live on the homepage.
-7. **Contact Inbox:** Customer messages save straight to the database and display in the admin dashboard inbox with toggleable resolved status.
-8. **Admin Panel:** Complete tab-controlled command center with live system metrics counters, bookings status adjuster, notes updates, reviews approval lists, and contact messages management.
+## 📖 About the Website
+
+The **Poojitha Reddy Electricals** platform serves as the digital front office and operations management portal for residential, commercial, and industrial electrical and handyman services. Designed with a high-end glassmorphic dark theme, the website provides a seamless experience for customers to browse services, submit appointment requests, track status in real-time, read verified customer feedback, and directly reach the technician.
+
+### Services Offered
+- **All Electrical Works:** Home troubleshooting, short circuits, switchboard repair, appliance fitting, fan and lighting setup.
+- **Industrial Works:** Factory control panels, industrial motor wiring, three-phase power routing, generator hookups.
+- **Plumbing Works:** Pipeline leakage repairs, water pump installation and servicing, drainage solutions, sanitary fittings.
+- **Welding Works:** Metal gate fabrication, safety grill welding, balcony railings, sheet metal repairs.
+- **House Wiring:** Complete new building wiring, distribution board (DB/MCB) installations, earthing, inverter and UPS routing.
+
+---
+
+## 💻 Technologies Used
+
+### Frontend Architecture
+- **React 18:** Modern functional component architecture with React Hooks.
+- **Vite:** High-performance build tool and dev server with optimized code-splitting and asset bundling.
+- **React Router DOM (HashRouter):** Client-side routing with hash navigation to guarantee seamless compatibility across multiple domains, custom DNS records, and static GitHub Pages sub-paths without white-screen or 404 routing errors.
+- **Custom CSS3 Glassmorphic Design:** Handcrafted neon-accented dark UI with glassmorphism, responsive CSS Grid and Flexbox layouts, glow effects, and smooth CSS transitions.
+- **Responsive Mobile-First Interface:** Optimized for desktops, tablets, and smartphones with mobile drawer navigation.
+
+### Backend & API
+- **Node.js:** Server-side JavaScript runtime environment.
+- **Express.js:** Lightweight and fast REST API framework structuring endpoints for authentication, bookings, tracking, messages, and reviews.
+- **JSON Web Tokens (JWT):** Secure token-based session management for customer accounts and administrator access.
+- **Bcrypt.js:** Cryptographic hashing for secure user and administrator password storage.
+- **CORS & Environment Configurations:** Configured with Cross-Origin Resource Sharing and environment variable injection for production deployments.
+
+### Database & Cloud Storage
+- **Firebase Firestore:** Cloud database integration for real-time document synchronization across customer bookings, inbox messages, reviews, and administrator datasets.
+- **MongoDB / Mongoose:** Object Data Modeling (ODM) layer for schema validation, querying, and persistent record storage.
+- **Automated Local-First Failover Engine:** Robust fallback architecture that enables full local offline functionality using structured JSON storage whenever cloud or external databases are unreachable.
+
+### Hosting & CI/CD
+- **GitHub Pages:** Static frontend hosting with custom CNAME domain mapping and HTTPS automation.
+- **Custom Domain DNS:** Multi-record DNS configuration mapping `poojithareddyelectricals.dpdns.org` directly to GitHub Pages edge servers.
+- **Render Cloud:** Cloud hosting for the Node.js Express REST API backend service.
+- **GitHub Actions:** Automated continuous integration and continuous deployment (CI/CD) pipelines for frontend builds.
+
+---
+
+## 🛠️ Key Features
+
+1. **Interactive Hero & Showcase:** Introduces the brand, business owner V. Vinay Kumar Reddy, contact numbers, and 24/7 emergency response indicators.
+2. **Comprehensive Services Catalog:** Interactive service cards with detailed descriptions, task bullet points, and direct booking links.
+3. **Protected Online Booking System:** Requires customer sign-in or registration to book an appointment, pre-filling customer details and preventing spam requests.
+4. **Real-Time Booking Tracker:** Customers can monitor their request status (`Pending`, `Accepted`, `In Progress`, `Completed`, or `Cancelled`) and view handyman updates using their reference code (e.g., `PRE-W19A82`).
+5. **Customer Authentication & Dashboard:** Complete customer registration, secure login, and a dedicated portal where clients can view their personal booking history.
+6. **Customer Reviews & Moderation:** Real customer testimonials with 5-star ratings, complete with an administrative moderation queue for approval before public display.
+7. **Direct Contact System:** Integrated contact form with instant notifications and direct phone hotlines.
+8. **Administrative Command Center:** Protected administrative dashboard to manage appointment requests, update technician notes, approve reviews, and resolve customer messages.
+
+---
+
+## 🚀 Running Locally
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/tharunreddyvallapureddy-bit/poojitha-reddy-electricals.git
+cd poojitha-reddy-electricals
+```
+
+### 2. Start the Backend API
+```bash
+cd backend
+npm install
+npm start
+```
+*The backend server runs on `http://localhost:5000`.*
+
+### 3. Start the Frontend Application
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+*The frontend development server runs on `http://localhost:5173`.*
+
+---
+
+## 📞 Business Contact
+
+- **Business Name:** Poojitha Reddy Electricals
+- **Proprietor:** V. Vinay Kumar Reddy
+- **Phone:** +91 84988 70697
+- **Location:** 2-61, Nallaballe, Muddanur, YSR Kadapa District, Andhra Pradesh, India
