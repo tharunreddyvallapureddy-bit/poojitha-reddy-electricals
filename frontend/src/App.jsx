@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
@@ -12,6 +12,20 @@ import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import AdminAuth from './components/AdminAuth';
 import AdminDashboard from './components/AdminDashboard';
+
+// Wrapper to protect tracking route and preserve code query parameters
+function TrackRouteWrapper({ user, API_URL }) {
+  const location = useLocation();
+  if (!user) {
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code');
+    const redirectUrl = code 
+      ? `/auth?redirect=track&code=${encodeURIComponent(code)}` 
+      : '/auth?redirect=track';
+    return <Navigate to={redirectUrl} replace />;
+  }
+  return <Tracker user={user} API_URL={API_URL} />;
+}
 
 // Dynamic API URL detection: fallback to local port 5000 in development
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -96,9 +110,9 @@ function App() {
               )
             } />
 
-            {/* Status Tracker Route */}
+            {/* Status Tracker Route - Protected: Requires Sign In / Sign Up */}
             <Route path="/track" element={
-              <Tracker API_URL={API_URL} />
+              <TrackRouteWrapper user={user} API_URL={API_URL} />
             } />
 
             {/* Customer Authentication */}

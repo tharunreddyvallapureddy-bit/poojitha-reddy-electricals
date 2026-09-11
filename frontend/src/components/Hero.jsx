@@ -39,7 +39,7 @@ const Hero = ({ user }) => {
             <Link to={user ? "/book" : "/auth?redirect=book"} className="btn btn-primary btn-lg-glow">
               <ToolIcon size={18} /> Book a Service
             </Link>
-            <Link to="/track" className="btn btn-secondary">
+            <Link to={user ? "/track" : "/auth?redirect=track"} className="btn btn-secondary">
               Track Booking Status
             </Link>
           </div>

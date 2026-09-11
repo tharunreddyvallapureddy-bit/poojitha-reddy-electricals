@@ -1,23 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { SearchIcon, CalendarIcon, ClipboardIcon, ToolIcon } from './Icons';
 
-const Tracker = ({ API_URL }) => {
+const Tracker = ({ user, API_URL }) => {
   const [searchParams] = useSearchParams();
   const codeParam = searchParams.get('code') || '';
+  const navigate = useNavigate();
 
   const [bookingCode, setBookingCode] = useState('');
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // If redirected with code parameter, trigger search automatically
+  // Protect tracker: If not authenticated, redirect to sign in / sign up
   useEffect(() => {
-    if (codeParam) {
+    if (!user) {
+      const target = codeParam 
+        ? `/auth?redirect=track&code=${encodeURIComponent(codeParam)}` 
+        : '/auth?redirect=track';
+      navigate(target, { replace: true });
+    }
+  }, [user, codeParam, navigate]);
+
+  // If redirected with code parameter and authenticated, trigger search automatically
+  useEffect(() => {
+    if (user && codeParam) {
       setBookingCode(codeParam);
       trackBooking(codeParam);
     }
-  }, [codeParam]);
+  }, [user, codeParam]);
 
   const trackBooking = async (codeToSearch) => {
     const code = codeToSearch || bookingCode;
@@ -45,6 +56,10 @@ const Tracker = ({ API_URL }) => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    if (!user) {
+      navigate(bookingCode ? `/auth?redirect=track&code=${encodeURIComponent(bookingCode)}` : '/auth?redirect=track');
+      return;
+    }
     trackBooking();
   };
 

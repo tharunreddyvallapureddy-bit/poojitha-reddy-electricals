@@ -34,11 +34,14 @@ const Auth = ({ user, setUser, API_URL }) => {
     if (user) {
       if (redirect === 'book') {
         navigate(service ? `/book?service=${encodeURIComponent(service)}` : '/book', { replace: true });
+      } else if (redirect === 'track') {
+        const code = searchParams.get('code');
+        navigate(code ? `/track?code=${encodeURIComponent(code)}` : '/track', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, redirect, service, navigate]);
+  }, [user, redirect, service, searchParams, navigate]);
 
   const handleSignInChange = (e) => {
     const { name, value } = e.target;
@@ -53,6 +56,9 @@ const Auth = ({ user, setUser, API_URL }) => {
   const handlePostAuthNavigation = () => {
     if (redirect === 'book') {
       navigate(service ? `/book?service=${encodeURIComponent(service)}` : '/book');
+    } else if (redirect === 'track') {
+      const code = searchParams.get('code');
+      navigate(code ? `/track?code=${encodeURIComponent(code)}` : '/track');
     } else {
       navigate('/dashboard');
     }
@@ -147,6 +153,12 @@ const Auth = ({ user, setUser, API_URL }) => {
         {redirect === 'book' && (
           <div className="alert-box alert-info" style={{ marginBottom: '24px', textAlign: 'center', fontWeight: '500' }}>
             ⚡ Please sign in or register an account to book your handyman service.
+          </div>
+        )}
+
+        {redirect === 'track' && (
+          <div className="alert-box alert-info" style={{ marginBottom: '24px', textAlign: 'center', fontWeight: '500' }}>
+            🔍 Please sign in or register an account to track your booking status.
           </div>
         )}
 
