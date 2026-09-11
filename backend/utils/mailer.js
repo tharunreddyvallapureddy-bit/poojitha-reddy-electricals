@@ -140,7 +140,9 @@ const sendAdminBookingNotification = async (booking) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Origin': 'https://poojithareddyelectricals.dpdns.org',
+            'Referer': 'https://poojithareddyelectricals.dpdns.org/'
           },
           body: JSON.stringify({
             _subject: emailSubject,

@@ -127,10 +127,6 @@ const Booking = ({ user, API_URL }) => {
             </div>
           </div>
 
-          <div className="alert-box alert-info" style={{ marginTop: '16px', marginBottom: '20px', fontSize: '0.88rem', textAlign: 'center' }}>
-            🔔 <strong>Instant Notification Sent:</strong> Admin email <code>poojithareddyelectricals@gmail.com</code> and technician mobile have been notified.
-          </div>
-
           <div className="receipt-actions">
             <Link to={`/track?code=${successBooking.bookingCode}`} className="btn btn-primary">
               Track Status Now
@@ -144,28 +140,6 @@ const Booking = ({ user, API_URL }) => {
                 Back to Home
               </Link>
             )}
-          </div>
-
-          <div style={{ marginTop: '16px' }}>
-            <a 
-              href={`https://api.whatsapp.com/send?phone=916281752093&text=${encodeURIComponent(
-                `Hello Vinay Garu, I have placed a service booking on Poojitha Reddy Electricals!\n\n📋 *Booking Code:* ${successBooking.bookingCode}\n🔧 *Service:* ${successBooking.serviceType}\n👤 *Customer:* ${successBooking.customerName}\n📞 *Phone:* ${successBooking.customerPhone}\n📅 *Preferred Date:* ${new Date(successBooking.bookingDate).toLocaleDateString()}\n📝 *Work:* ${successBooking.description || 'None'}`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary w-full"
-              style={{
-                borderColor: 'rgba(37, 211, 102, 0.4)',
-                color: '#25D366',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                fontWeight: '600'
-              }}
-            >
-              💬 WhatsApp Alert to Handyman (+91 6281752093)
-            </a>
           </div>
         </div>
       </div>
