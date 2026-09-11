@@ -1,30 +1,21 @@
 import React from 'react';
+import { EMBLEM_SRC } from '../assets/emblemBase64';
 
-// Brand Logo - Stylized Horns/V shape in purple/magenta gradient
-export const BrandLogo = ({ className = '', size = 32 }) => (
-  <svg
+// Brand Logo - Official Poojitha Reddy Electricals Stylized Winged 'V' Emblem
+export const BrandLogo = ({ className = '', size = 32, style = {} }) => (
+  <img
+    src={EMBLEM_SRC}
+    alt="Poojitha Reddy Electricals"
     width={size}
     height={size}
-    viewBox="0 0 200 200"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-  >
-    <defs>
-      <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="hsl(295, 85%, 60%)" />
-        <stop offset="100%" stopColor="hsl(190, 95%, 50%)" />
-      </linearGradient>
-    </defs>
-    <path
-      d="M30 30 C50 70 80 120 100 170 C120 120 150 70 170 30 C150 40 130 50 100 50 C70 50 50 40 30 30 Z"
-      fill="url(#logoGrad)"
-    />
-    <path
-      d="M30 30 C45 60 70 90 100 115 C130 90 155 60 170 30 C150 35 130 40 100 40 C70 40 50 35 30 30 Z"
-      fill="rgba(0,0,0,0.2)"
-    />
-  </svg>
+    className={`brand-emblem-img ${className}`.trim()}
+    style={{
+      objectFit: 'contain',
+      display: 'inline-block',
+      verticalAlign: 'middle',
+      ...style
+    }}
+  />
 );
 
 // Generic wrapper for clean stroke-width and viewport
