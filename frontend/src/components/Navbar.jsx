@@ -152,10 +152,22 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
                           />
                         </div>
                         <div className="dropdown-user-meta">
-                          <span className="dropdown-user-name">{user?.name}</span>
-                          <span className="dropdown-user-email">{user?.email}</span>
-                          <span className="dropdown-user-phone">{user?.phone}</span>
-                          <span className="dropdown-user-badge">⚡ Verified Account</span>
+                          <div className="dropdown-user-name" title={user?.name}>
+                            {user?.name}
+                          </div>
+                          {user?.email && (
+                            <div className="dropdown-user-email" title={user?.email}>
+                              {user?.email}
+                            </div>
+                          )}
+                          <div className="dropdown-user-sub-row">
+                            {user?.phone && (
+                              <span className="dropdown-user-phone">
+                                📞 {user?.phone}
+                              </span>
+                            )}
+                            <span className="dropdown-user-badge">⚡ Verified Account</span>
+                          </div>
                         </div>
                       </div>
 
