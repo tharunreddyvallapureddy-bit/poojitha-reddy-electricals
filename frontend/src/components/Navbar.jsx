@@ -2,22 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   BrandLogo, UserIcon, LogOutIcon, LockIcon, ChevronDownIcon, 
-  ClipboardIcon, KeyIcon, BellIcon, MapPinIcon 
+  ClipboardIcon, KeyIcon, BellIcon, MapPinIcon, ShieldCheckIcon 
 } from './Icons';
 import { DEFAULT_AVATAR_SRC } from '../assets/defaultAvatarBase64';
 
 const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const profileDropdownRef = useRef(null);
+  const adminDropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Close profile dropdown when clicking outside
+  // Close profile dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target)) {
         setProfileMenuOpen(false);
+      }
+      if (adminDropdownRef.current && !adminDropdownRef.current.contains(e.target)) {
+        setAdminMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -48,9 +53,101 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
   };
 
   const handleAdminLogout = () => {
+    setAdminMenuOpen(false);
+    setMobileMenuOpen(false);
     logoutAdmin();
     navigate('/');
   };
+
+  const renderAdminProfile = () => (
+    <div className="nav-profile-wrapper" ref={adminDropdownRef}>
+      <button
+        type="button"
+        className={`nav-profile-btn nav-admin-profile-btn ${adminMenuOpen ? 'active' : ''}`}
+        onClick={() => setAdminMenuOpen((prev) => !prev)}
+        title="Open Admin Profile"
+        aria-label="Admin Profile"
+      >
+        <div className="nav-avatar-ring admin-ring">
+          <img
+            src={DEFAULT_AVATAR_SRC}
+            alt="Admin Avatar"
+            className="nav-avatar-img"
+            onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+          />
+        </div>
+        <span className="nav-user-firstname admin-badge-text">
+          {admin?.username ? admin.username.toUpperCase() : 'ADMIN'}
+        </span>
+        <ChevronDownIcon size={14} className={`nav-profile-chevron ${adminMenuOpen ? 'rotate' : ''}`} />
+      </button>
+
+      {adminMenuOpen && (
+        <div className="nav-profile-dropdown animate-fade-in">
+          {/* Admin Header Summary */}
+          <div className="dropdown-user-header">
+            <div className="dropdown-avatar-ring admin-avatar-ring">
+              <img
+                src={DEFAULT_AVATAR_SRC}
+                alt="Admin Avatar"
+                className="dropdown-avatar-img"
+                onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+              />
+            </div>
+            <div className="dropdown-user-meta">
+              <div className="dropdown-user-name" title={admin?.username || 'Administrator'}>
+                {admin?.username ? admin.username.toUpperCase() : 'ADMINISTRATOR'}
+              </div>
+              <div className="dropdown-user-email">
+                poojithareddyelectricals@gmail.com
+              </div>
+              <div className="dropdown-user-sub-row">
+                <span className="dropdown-user-badge admin-badge">
+                  🛡️ Master Admin
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="dropdown-divider"></div>
+
+          {/* Admin Dropdown Menu Items */}
+          <div className="dropdown-links-list">
+            <Link
+              to="/admin-dashboard"
+              className="dropdown-item"
+              onClick={() => { setAdminMenuOpen(false); setMobileMenuOpen(false); }}
+            >
+              <ClipboardIcon size={16} className="dropdown-item-icon text-purple" />
+              <span>Admin Control Panel</span>
+            </Link>
+            <Link
+              to="/"
+              className="dropdown-item"
+              onClick={() => { setAdminMenuOpen(false); setMobileMenuOpen(false); }}
+            >
+              <UserIcon size={16} className="dropdown-item-icon text-cyan" />
+              <span>Customer Website</span>
+            </Link>
+          </div>
+
+          <div className="dropdown-divider"></div>
+
+          {/* Sign Out Option Inside Admin Profile */}
+          <div className="dropdown-signout-wrapper">
+            <button
+              type="button"
+              onClick={handleAdminLogout}
+              className="dropdown-signout-btn"
+            >
+              <LogOutIcon size={16} />
+              <span>Admin Out</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const isAdminSection = location.pathname.startsWith('/admin');
 
@@ -83,11 +180,11 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
               <Link to="/admin-dashboard" className="nav-link admin-active-link" onClick={() => setMobileMenuOpen(false)}>
                 Admin Panel
               </Link>
-              {admin && (
-                <button onClick={handleAdminLogout} className="btn btn-secondary btn-sm-logout">
-                  <LogOutIcon size={16} /> Admin Out
-                </button>
-              )}
+              <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                Customer Website
+              </Link>
+              <span className="nav-divider"></span>
+              {admin && renderAdminProfile()}
             </>
           ) : (
             <>
@@ -110,14 +207,7 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
               <span className="nav-divider"></span>
 
               {admin ? (
-                <>
-                  <Link to="/admin-dashboard" className="nav-link admin-active-link" onClick={() => setMobileMenuOpen(false)}>
-                    Admin Panel
-                  </Link>
-                  <button onClick={handleAdminLogout} className="btn btn-secondary btn-sm-logout">
-                    <LogOutIcon size={16} /> Admin Out
-                  </button>
-                </>
+                renderAdminProfile()
               ) : user ? (
                 <div className="nav-profile-wrapper" ref={profileDropdownRef}>
                   <button

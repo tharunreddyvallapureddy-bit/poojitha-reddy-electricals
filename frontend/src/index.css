@@ -3094,4 +3094,46 @@ input:checked + .switch-slider:before {
   }
 }
 
+/* ==========================================================================
+   ADMIN PROFILE AVATAR & DROPDOWN (PURPLE ACCENTS)
+   ========================================================================== */
+.nav-admin-profile-btn {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.nav-admin-profile-btn:hover,
+.nav-admin-profile-btn.active {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.7);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
+}
+
+.admin-ring {
+  border: 1.5px solid var(--accent-purple) !important;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4) !important;
+}
+
+.admin-badge-text {
+  color: #d8b4fe !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.admin-avatar-ring {
+  border: 2px solid var(--accent-purple) !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.4) !important;
+}
+
+.admin-avatar-badge {
+  background: #9333ea !important;
+}
+
+.dropdown-user-badge.admin-badge {
+  background: rgba(168, 85, 247, 0.16) !important;
+  color: #d8b4fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.4) !important;
+}
+
+
 

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   CalendarIcon, UserIcon, PhoneIcon, ClipboardIcon, 
-  CheckIcon, XIcon, LoaderIcon, StarIcon, MailIcon, MapPinIcon 
+  CheckIcon, XIcon, LoaderIcon, StarIcon, MailIcon, MapPinIcon, ShieldCheckIcon 
 } from './Icons';
+import { DEFAULT_AVATAR_SRC } from '../assets/defaultAvatarBase64';
 
 const AdminDashboard = ({ admin, API_URL }) => {
   const [activeTab, setActiveTab] = useState('bookings'); // bookings, reviews, messages, overview
@@ -215,12 +216,20 @@ const AdminDashboard = ({ admin, API_URL }) => {
       {/* Admin Panel Header */}
       <div className="dashboard-header glass-card admin-dashboard-header" style={{ marginBottom: '32px' }}>
         <div className="header-user-info">
-          <div className="avatar-circle admin-avatar-circle">
-            <ClipboardIcon size={32} className="text-purple" />
+          <div className="dashboard-avatar-ring admin-avatar-ring">
+            <img 
+              src={admin?.avatar || DEFAULT_AVATAR_SRC} 
+              alt="Admin Profile" 
+              className="dashboard-avatar-img"
+              onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+            />
+            <span className="dashboard-avatar-badge admin-avatar-badge" title="Verified Administrator">
+              <ShieldCheckIcon size={14} />
+            </span>
           </div>
           <div>
             <span className="welcome-label text-purple">ADMIN CONTROL CENTRE</span>
-            <h2>Poojitha Reddy Electricals Manager</h2>
+            <h2>Welcome Back, {admin?.username ? admin.username.toUpperCase() : 'Administrator'}!</h2>
           </div>
         </div>
 
