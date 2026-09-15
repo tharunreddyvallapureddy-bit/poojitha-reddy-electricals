@@ -110,7 +110,12 @@ const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      avatar: user.avatar || '',
+      alternatePhone: user.alternatePhone || '',
+      gender: user.gender || 'Prefer not to say',
+      dob: user.dob || '',
       address: user.address || {
+        addressType: 'Home',
         street: '',
         landmark: '',
         villageTown: '',
@@ -143,7 +148,12 @@ const getUserProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        avatar: user.avatar || '',
+        alternatePhone: user.alternatePhone || '',
+        gender: user.gender || 'Prefer not to say',
+        dob: user.dob || '',
         address: user.address || {
+          addressType: 'Home',
           street: '',
           landmark: '',
           villageTown: '',
@@ -166,7 +176,7 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Update customer user profile (Name, Phone, Address, Notifications)
+// @desc    Update customer user profile (Name, Phone, Avatar, Alternate Phone, Gender, DOB, Address, Notifications)
 // @route   PUT /api/auth/user/profile
 // @access  Private (User)
 const updateUserProfile = async (req, res) => {
@@ -176,12 +186,18 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { name, phone, address, notifications } = req.body;
+    const { name, phone, avatar, alternatePhone, gender, dob, address, notifications } = req.body;
 
     if (name) user.name = name;
     if (phone) user.phone = phone;
+    if (avatar !== undefined) user.avatar = avatar;
+    if (alternatePhone !== undefined) user.alternatePhone = alternatePhone;
+    if (gender !== undefined) user.gender = gender;
+    if (dob !== undefined) user.dob = dob;
+
     if (address) {
       user.address = {
+        addressType: address.addressType !== undefined ? address.addressType : (user.address?.addressType || 'Home'),
         street: address.street !== undefined ? address.street : (user.address?.street || ''),
         landmark: address.landmark !== undefined ? address.landmark : (user.address?.landmark || ''),
         villageTown: address.villageTown !== undefined ? address.villageTown : (user.address?.villageTown || ''),
@@ -204,6 +220,10 @@ const updateUserProfile = async (req, res) => {
       await User.findByIdAndUpdate(user._id, {
         name: user.name,
         phone: user.phone,
+        avatar: user.avatar,
+        alternatePhone: user.alternatePhone,
+        gender: user.gender,
+        dob: user.dob,
         address: user.address,
         notifications: user.notifications
       });
@@ -214,6 +234,10 @@ const updateUserProfile = async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      avatar: user.avatar,
+      alternatePhone: user.alternatePhone,
+      gender: user.gender,
+      dob: user.dob,
       address: user.address,
       notifications: user.notifications,
       message: 'Profile updated successfully'

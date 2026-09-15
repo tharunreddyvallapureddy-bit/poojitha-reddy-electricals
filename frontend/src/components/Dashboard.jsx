@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   CalendarIcon, 
   UserIcon, 
@@ -10,25 +10,45 @@ import {
   BellIcon, 
   MapPinIcon, 
   CheckIcon, 
-  KeyIcon,
-  MailIcon,
-  EyeIcon,
-  EyeOffIcon
+  KeyIcon, 
+  MailIcon, 
+  EyeIcon, 
+  EyeOffIcon,
+  CameraIcon,
+  LogOutIcon,
+  ShieldCheckIcon
 } from './Icons';
+import { DEFAULT_AVATAR_SRC } from '../assets/defaultAvatarBase64';
 
-const Dashboard = ({ user, setUser, API_URL }) => {
-  const [activeTab, setActiveTab] = useState('bookings');
+const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl === 'address' ? 'profile' : (tabFromUrl || 'profile'));
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
+  // Sync activeTab when query param tab changes
+  useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t) {
+      setActiveTab(t === 'address' ? 'profile' : t);
+    }
+  }, [searchParams]);
 
   // Profile & Address State
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
     email: user?.email || '',
+    avatar: user?.avatar || '',
+    alternatePhone: user?.alternatePhone || '',
+    gender: user?.gender || 'Prefer not to say',
+    dob: user?.dob || '',
     address: {
+      addressType: user?.address?.addressType || 'Home',
       street: user?.address?.street || '',
       landmark: user?.address?.landmark || '',
       villageTown: user?.address?.villageTown || '',
@@ -116,7 +136,12 @@ const Dashboard = ({ user, setUser, API_URL }) => {
           name: data.name || user?.name || '',
           phone: data.phone || user?.phone || '',
           email: data.email || user?.email || '',
+          avatar: data.avatar || user?.avatar || '',
+          alternatePhone: data.alternatePhone || user?.alternatePhone || '',
+          gender: data.gender || user?.gender || 'Prefer not to say',
+          dob: data.dob || user?.dob || '',
           address: {
+            addressType: data.address?.addressType || 'Home',
             street: data.address?.street || '',
             landmark: data.address?.landmark || '',
             villageTown: data.address?.villageTown || '',
@@ -131,6 +156,40 @@ const Dashboard = ({ user, setUser, API_URL }) => {
       }
     } catch (e) {
       console.warn('Could not fetch user profile details:', e);
+    }
+  };
+
+  const handleAvatarFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setProfileMsg({ type: 'danger', text: '⚠️ Selected image is too large (maximum 2MB).' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64 = uploadEvent.target.result;
+      setProfileData((prev) => ({ ...prev, avatar: base64 }));
+      setProfileMsg({ type: 'info', text: '📸 Photo loaded! Click "Save Profile Details" below to save.' });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = () => {
+    setProfileData((prev) => ({ ...prev, avatar: '' }));
+    setProfileMsg({ type: 'info', text: 'Reset avatar to default picture. Click "Save Profile Details" to save.' });
+  };
+
+  const handleProfileSignOut = () => {
+    if (window.confirm('Are you sure you want to sign out of your account?')) {
+      if (logoutUser) {
+        logoutUser();
+      } else {
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('user');
+        if (setUser) setUser(null);
+      }
+      navigate('/');
     }
   };
 
@@ -151,6 +210,10 @@ const Dashboard = ({ user, setUser, API_URL }) => {
         body: JSON.stringify({
           name: profileData.name,
           phone: profileData.phone,
+          avatar: profileData.avatar,
+          alternatePhone: profileData.alternatePhone,
+          gender: profileData.gender,
+          dob: profileData.dob,
           address: profileData.address,
         }),
       });
@@ -165,6 +228,10 @@ const Dashboard = ({ user, setUser, API_URL }) => {
         ...user,
         name: data.name,
         phone: data.phone,
+        avatar: data.avatar,
+        alternatePhone: data.alternatePhone,
+        gender: data.gender,
+        dob: data.dob,
         address: data.address,
         notifications: data.notifications || notifications,
       };
@@ -180,6 +247,10 @@ const Dashboard = ({ user, setUser, API_URL }) => {
             name: updatedUser.name,
             email: updatedUser.email,
             phone: updatedUser.phone,
+            avatar: updatedUser.avatar,
+            alternatePhone: updatedUser.alternatePhone,
+            gender: updatedUser.gender,
+            dob: updatedUser.dob,
             address: updatedUser.address,
             notifications: updatedUser.notifications,
             updatedAt: new Date().toISOString(),
@@ -377,8 +448,16 @@ const Dashboard = ({ user, setUser, API_URL }) => {
       {/* Dashboard Welcome Header */}
       <div className="dashboard-header glass-card" style={{ marginBottom: '24px' }}>
         <div className="header-user-info">
-          <div className="avatar-circle">
-            <UserIcon size={32} className="text-cyan" />
+          <div className="dashboard-avatar-ring">
+            <img 
+              src={profileData.avatar || user?.avatar || DEFAULT_AVATAR_SRC} 
+              alt={user?.name || 'Customer'} 
+              className="dashboard-avatar-img"
+              onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+            />
+            <span className="dashboard-avatar-badge" title="Verified Customer">
+              <ShieldCheckIcon size={14} />
+            </span>
           </div>
           <div>
             <span className="welcome-label">CUSTOMER PORTAL</span>
@@ -527,10 +606,10 @@ const Dashboard = ({ user, setUser, API_URL }) => {
           <div className="panel-header">
             <div>
               <h3 className="sub-panel-title">
-                <UserIcon size={22} className="text-cyan" /> Customer Details & Service Address
+                <UserIcon size={22} className="text-cyan" /> Customer Profile & Service Address
               </h3>
               <p className="sub-panel-desc">
-                Keep your contact credentials and home/factory service address updated for speedy bookings.
+                Manage your personal information, profile photo, alternate contact, and primary service location for rapid handyman dispatch.
               </p>
             </div>
           </div>
@@ -542,34 +621,101 @@ const Dashboard = ({ user, setUser, API_URL }) => {
           )}
 
           <form onSubmit={handleProfileSubmit} className="profile-card-section">
+            {/* Avatar / Profile Photo Section */}
+            <div className="profile-avatar-card">
+              <div className="profile-avatar-preview-wrap">
+                <div className="profile-avatar-ring">
+                  <img
+                    src={profileData.avatar || user?.avatar || DEFAULT_AVATAR_SRC}
+                    alt={profileData.name || 'User Profile'}
+                    className="profile-avatar-img"
+                    onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+                  />
+                  <button
+                    type="button"
+                    className="avatar-camera-btn"
+                    onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                    title="Upload or Change Photo"
+                  >
+                    <CameraIcon size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="profile-avatar-actions">
+                <h4 style={{ margin: '0 0 4px', fontSize: '1.05rem', color: '#fff' }}>Profile Photo</h4>
+                <p className="text-secondary" style={{ fontSize: '0.88rem', margin: '0 0 12px' }}>
+                  Personalize your account. Accepted formats: JPG, PNG, WebP (Max 3MB).
+                </p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    style={{ display: 'none' }}
+                    onChange={handleAvatarFileSelect}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                  >
+                    <CameraIcon size={15} /> Change Photo
+                  </button>
+                  {profileData.avatar && (
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={handleRemoveAvatar}
+                    >
+                      Reset to Default
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Personal Details */}
-            <div>
-              <h4 style={{ color: 'var(--accent-cyan)', marginBottom: '16px', fontSize: '1rem', fontWeight: '700' }}>
-                👤 Personal Credentials
+            <div style={{ paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <h4 style={{ color: 'var(--accent-cyan)', marginBottom: '16px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <UserIcon size={18} /> Personal Credentials
               </h4>
               <div className="dashboard-form-grid">
                 <div className="form-group">
-                  <label className="form-label">Full Name</label>
+                  <label className="form-label">Full Name *</label>
                   <input
                     type="text"
                     value={profileData.name}
                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                     className="form-input"
+                    placeholder="Enter your full name"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Contact Phone Number</label>
+                  <label className="form-label">Primary Contact Phone *</label>
                   <input
                     type="tel"
                     value={profileData.phone}
                     onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                     className="form-input"
+                    placeholder="10-digit mobile number"
                     required
                   />
                 </div>
-                <div className="form-group full-span">
-                  <label className="form-label">Registered Email Address (Locked to account)</label>
+                <div className="form-group">
+                  <label className="form-label">Alternate Phone / WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    value={profileData.alternatePhone}
+                    onChange={(e) => setProfileData({ ...profileData, alternatePhone: e.target.value })}
+                    className="form-input"
+                    placeholder="Alternate number for technician updates"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">
+                    Registered Email <span className="profile-verified-badge"><ShieldCheckIcon size={13} /> Verified</span>
+                  </label>
                   <input
                     type="email"
                     value={profileData.email}
@@ -578,17 +724,65 @@ const Dashboard = ({ user, setUser, API_URL }) => {
                     style={{ opacity: 0.7, cursor: 'not-allowed' }}
                   />
                 </div>
+                <div className="form-group">
+                  <label className="form-label">Gender</label>
+                  <select
+                    value={profileData.gender}
+                    onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
+                    className="form-input"
+                  >
+                    <option value="Prefer not to say">Prefer not to say</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={profileData.dob}
+                    onChange={(e) => setProfileData({ ...profileData, dob: e.target.value })}
+                    className="form-input"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Address Details */}
-            <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
-              <h4 style={{ color: 'var(--accent-purple)', marginBottom: '16px', fontSize: '1rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MapPinIcon size={18} /> Service Address Section
+            <div style={{ paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <h4 style={{ color: 'var(--accent-purple)', marginBottom: '16px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MapPinIcon size={18} /> Primary Service Address
               </h4>
+
+              {/* Address Type Selector */}
+              <div className="form-group" style={{ marginBottom: '18px' }}>
+                <label className="form-label">Address Type (Where are services typically needed?)</label>
+                <div className="address-type-selector">
+                  {['Home', 'Office', 'Factory', 'Workshop', 'Other'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      className={`address-type-pill ${profileData.address.addressType === type ? 'active' : ''}`}
+                      onClick={() => setProfileData({
+                        ...profileData,
+                        address: { ...profileData.address, addressType: type }
+                      })}
+                    >
+                      {type === 'Home' && '🏠 '}
+                      {type === 'Office' && '🏢 '}
+                      {type === 'Factory' && '🏭 '}
+                      {type === 'Workshop' && '🛠️ '}
+                      {type === 'Other' && '📍 '}
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="dashboard-form-grid">
                 <div className="form-group full-span">
-                  <label className="form-label">House / Door No & Street</label>
+                  <label className="form-label">House / Flat / Door No & Street</label>
                   <input
                     type="text"
                     placeholder="e.g. 2-61, Main Street / Near Water Tank"
@@ -604,7 +798,7 @@ const Dashboard = ({ user, setUser, API_URL }) => {
                   <label className="form-label">Landmark</label>
                   <input
                     type="text"
-                    placeholder="e.g. Opposite Post Office"
+                    placeholder="e.g. Opposite Post Office / Bus Stand"
                     value={profileData.address.landmark}
                     onChange={(e) => setProfileData({
                       ...profileData,
@@ -614,7 +808,7 @@ const Dashboard = ({ user, setUser, API_URL }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Village / Town</label>
+                  <label className="form-label">Village / Town / City</label>
                   <input
                     type="text"
                     placeholder="e.g. Nallaballe / Muddanur"
@@ -667,12 +861,31 @@ const Dashboard = ({ user, setUser, API_URL }) => {
               </div>
             </div>
 
-            <div>
+            <div style={{ marginTop: '16px' }}>
               <button type="submit" className="btn btn-primary btn-lg-glow" disabled={profileLoading}>
-                {profileLoading ? 'Saving Details...' : 'Save Profile & Address Details'}
+                {profileLoading ? 'Saving Changes...' : 'Save Profile & Address Details'}
               </button>
             </div>
           </form>
+
+          {/* Dedicated Sign Out of Account Section inside Profile */}
+          <div className="profile-signout-card">
+            <div className="profile-signout-info">
+              <h4>
+                <LogOutIcon size={20} className="text-danger" /> Sign Out of Your Account
+              </h4>
+              <p>
+                Signing out will end your session on this device. All your service requests, bookings, and address history remain securely saved.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleProfileSignOut}
+              className="btn btn-outline-danger profile-signout-btn"
+            >
+              <LogOutIcon size={16} /> Sign Out
+            </button>
+          </div>
         </div>
       )}
 

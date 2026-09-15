@@ -6,7 +6,12 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   password: { type: String, required: true },
+  avatar: { type: String, default: '' },
+  alternatePhone: { type: String, default: '' },
+  gender: { type: String, default: 'Prefer not to say' },
+  dob: { type: String, default: '' },
   address: {
+    addressType: { type: String, default: 'Home' },
     street: { type: String, default: '' },
     landmark: { type: String, default: '' },
     villageTown: { type: String, default: '' },

@@ -122,7 +122,7 @@ function App() {
 
             {/* Customer Dashboard */}
             <Route path="/dashboard" element={
-              user ? <Dashboard user={user} setUser={setUser} API_URL={API_URL} /> : <Navigate to="/auth" />
+              user ? <Dashboard user={user} setUser={setUser} API_URL={API_URL} logoutUser={logoutUser} /> : <Navigate to="/auth" />
             } />
 
             {/* Admin Authentication */}
