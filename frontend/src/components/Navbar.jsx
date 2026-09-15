@@ -32,10 +32,12 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
     navigate('/');
   };
 
+  const isAdminSection = location.pathname.startsWith('/admin');
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo" onClick={() => handleNavClick('hero')}>
+        <Link to="/" className="navbar-logo" onClick={() => !isAdminSection && handleNavClick('hero')}>
           <BrandLogo size={36} />
           <div className="logo-text">
             <span className="brand-name">POOJITHA REDDY</span>
@@ -56,50 +58,65 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
 
         {/* Navigation Links */}
         <div className={`nav-menu ${mobileMenuOpen ? 'active' : ''}`}>
-          <button onClick={() => handleNavClick('services')} className="nav-link-btn">
-            Services
-          </button>
-          <Link to={user ? "/book" : "/auth?redirect=book"} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
-            Book Service
-          </Link>
-          <Link to={user ? "/track" : "/auth?redirect=track"} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
-            Track Booking
-          </Link>
-          <button onClick={() => handleNavClick('reviews')} className="nav-link-btn">
-            Reviews
-          </button>
-          <button onClick={() => handleNavClick('contact')} className="nav-link-btn">
-            Contact
-          </button>
-
-          <span className="nav-divider"></span>
-
-          {admin ? (
+          {isAdminSection ? (
             <>
               <Link to="/admin-dashboard" className="nav-link admin-active-link" onClick={() => setMobileMenuOpen(false)}>
                 Admin Panel
               </Link>
-              <button onClick={handleAdminLogout} className="btn btn-secondary btn-sm-logout">
-                <LogOutIcon size={16} /> Admin Out
-              </button>
-            </>
-          ) : user ? (
-            <>
-              <Link to="/dashboard" className="nav-link user-active-link" onClick={() => setMobileMenuOpen(false)}>
-                <UserIcon size={16} /> My Account
-              </Link>
-              <button onClick={handleLogout} className="btn btn-secondary btn-sm-logout">
-                <LogOutIcon size={16} /> Sign Out
-              </button>
+              {admin && (
+                <button onClick={handleAdminLogout} className="btn btn-secondary btn-sm-logout">
+                  <LogOutIcon size={16} /> Admin Out
+                </button>
+              )}
             </>
           ) : (
             <>
-              <Link to="/auth" className="btn btn-primary nav-auth-btn" onClick={() => setMobileMenuOpen(false)}>
-                Sign In / Up
+              <button onClick={() => handleNavClick('services')} className="nav-link-btn">
+                Services
+              </button>
+              <Link to={user ? "/book" : "/auth?redirect=book"} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                Book Service
               </Link>
-              <Link to="/admin-login" className="admin-lock-link" title="Admin Portal" onClick={() => setMobileMenuOpen(false)}>
-                <LockIcon size={18} />
+              <Link to={user ? "/track" : "/auth?redirect=track"} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                Track Booking
               </Link>
+              <button onClick={() => handleNavClick('reviews')} className="nav-link-btn">
+                Reviews
+              </button>
+              <button onClick={() => handleNavClick('contact')} className="nav-link-btn">
+                Contact
+              </button>
+
+              <span className="nav-divider"></span>
+
+              {admin ? (
+                <>
+                  <Link to="/admin-dashboard" className="nav-link admin-active-link" onClick={() => setMobileMenuOpen(false)}>
+                    Admin Panel
+                  </Link>
+                  <button onClick={handleAdminLogout} className="btn btn-secondary btn-sm-logout">
+                    <LogOutIcon size={16} /> Admin Out
+                  </button>
+                </>
+              ) : user ? (
+                <>
+                  <Link to="/dashboard" className="nav-link user-active-link" onClick={() => setMobileMenuOpen(false)}>
+                    <UserIcon size={16} /> My Account
+                  </Link>
+                  <button onClick={handleLogout} className="btn btn-secondary btn-sm-logout">
+                    <LogOutIcon size={16} /> Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" className="btn btn-primary nav-auth-btn" onClick={() => setMobileMenuOpen(false)}>
+                    Sign In / Up
+                  </Link>
+                  <Link to="/admin-login" className="admin-lock-link" title="Admin Portal" onClick={() => setMobileMenuOpen(false)}>
+                    <LockIcon size={18} />
+                  </Link>
+                </>
+              )}
             </>
           )}
         </div>
