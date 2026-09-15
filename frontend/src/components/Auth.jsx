@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MailIcon, UserIcon, PhoneIcon, LockIcon } from './Icons';
+import { MailIcon, UserIcon, PhoneIcon, LockIcon, EyeIcon, EyeOffIcon } from './Icons';
 
 const Auth = ({ user, setUser, API_URL }) => {
   const [searchParams] = useSearchParams();
@@ -8,6 +8,13 @@ const Auth = ({ user, setUser, API_URL }) => {
   const service = searchParams.get('service');
   const [isLogin, setIsLogin] = useState(true);
   
+  // Password visibility states
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [showSignUpConfirmPassword, setShowSignUpConfirmPassword] = useState(false);
+  const [showForgotNewPassword, setShowForgotNewPassword] = useState(false);
+  const [showForgotConfirmPassword, setShowForgotConfirmPassword] = useState(false);
+
   // Sign In Form State
   const [signInData, setSignInData] = useState({
     email: '',
@@ -304,25 +311,47 @@ const Auth = ({ user, setUser, API_URL }) => {
                 </div>
 
                 <div className="form-group minimal-group">
-                  <input
-                    type="password"
-                    value={forgotNewPassword}
-                    onChange={(e) => setForgotNewPassword(e.target.value)}
-                    className="form-input minimal-input"
-                    placeholder="New Password (min 6 chars)"
-                    required
-                  />
+                  <div className="password-input-wrapper">
+                    <input
+                      type={showForgotNewPassword ? 'text' : 'password'}
+                      value={forgotNewPassword}
+                      onChange={(e) => setForgotNewPassword(e.target.value)}
+                      className="form-input minimal-input"
+                      placeholder="New Password (min 6 chars)"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowForgotNewPassword((prev) => !prev)}
+                      title={showForgotNewPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showForgotNewPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showForgotNewPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="form-group minimal-group">
-                  <input
-                    type="password"
-                    value={forgotConfirmPassword}
-                    onChange={(e) => setForgotConfirmPassword(e.target.value)}
-                    className="form-input minimal-input"
-                    placeholder="Confirm New Password"
-                    required
-                  />
+                  <div className="password-input-wrapper">
+                    <input
+                      type={showForgotConfirmPassword ? 'text' : 'password'}
+                      value={forgotConfirmPassword}
+                      onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                      className="form-input minimal-input"
+                      placeholder="Confirm New Password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowForgotConfirmPassword((prev) => !prev)}
+                      title={showForgotConfirmPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showForgotConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showForgotConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                    </button>
+                  </div>
                 </div>
 
                 <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={forgotLoading}>
@@ -363,15 +392,26 @@ const Auth = ({ user, setUser, API_URL }) => {
               </div>
 
               <div className="form-group minimal-group">
-                <input
-                  type="password"
-                  name="password"
-                  value={signInData.password}
-                  onChange={handleSignInChange}
-                  className="form-input minimal-input"
-                  placeholder="Password"
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={showSignInPassword ? 'text' : 'password'}
+                    name="password"
+                    value={signInData.password}
+                    onChange={handleSignInChange}
+                    className="form-input minimal-input"
+                    placeholder="Password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowSignInPassword((prev) => !prev)}
+                    title={showSignInPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showSignInPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                  </button>
+                </div>
               </div>
 
               <div className="forgot-password-link">
@@ -453,27 +493,49 @@ const Auth = ({ user, setUser, API_URL }) => {
               </div>
 
               <div className="form-group minimal-group">
-                <input
-                  type="password"
-                  name="password"
-                  value={signUpData.password}
-                  onChange={handleSignUpChange}
-                  className="form-input minimal-input"
-                  placeholder="Password"
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={showSignUpPassword ? 'text' : 'password'}
+                    name="password"
+                    value={signUpData.password}
+                    onChange={handleSignUpChange}
+                    className="form-input minimal-input"
+                    placeholder="Password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowSignUpPassword((prev) => !prev)}
+                    title={showSignUpPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showSignUpPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                  </button>
+                </div>
               </div>
 
               <div className="form-group minimal-group">
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={signUpData.confirmPassword}
-                  onChange={handleSignUpChange}
-                  className="form-input minimal-input"
-                  placeholder="Confirm Password"
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={showSignUpConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={signUpData.confirmPassword}
+                    onChange={handleSignUpChange}
+                    className="form-input minimal-input"
+                    placeholder="Confirm Password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowSignUpConfirmPassword((prev) => !prev)}
+                    title={showSignUpConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showSignUpConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showSignUpConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                  </button>
+                </div>
               </div>
 
               <button type="submit" className="btn btn-primary w-full minimal-submit-btn" disabled={signUpLoading}>

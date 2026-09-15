@@ -11,7 +11,9 @@ import {
   MapPinIcon, 
   CheckIcon, 
   KeyIcon,
-  MailIcon
+  MailIcon,
+  EyeIcon,
+  EyeOffIcon
 } from './Icons';
 
 const Dashboard = ({ user, setUser, API_URL }) => {
@@ -46,6 +48,9 @@ const Dashboard = ({ user, setUser, API_URL }) => {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMsg, setPasswordMsg] = useState({ type: '', text: '' });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Forgot Password / OTP Reset inside Dashboard
   const [showOtpReset, setShowOtpReset] = useState(false);
@@ -53,6 +58,8 @@ const Dashboard = ({ user, setUser, API_URL }) => {
   const [otpCode, setOtpCode] = useState('');
   const [otpNewPassword, setOtpNewPassword] = useState('');
   const [otpConfirmPassword, setOtpConfirmPassword] = useState('');
+  const [showOtpNewPassword, setShowOtpNewPassword] = useState(false);
+  const [showOtpConfirmPassword, setShowOtpConfirmPassword] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpMsg, setOtpMsg] = useState({ type: '', text: '' });
   const [devOtpHint, setDevOtpHint] = useState('');
@@ -697,38 +704,71 @@ const Dashboard = ({ user, setUser, API_URL }) => {
 
             <div className="form-group">
               <label className="form-label">Current Password</label>
-              <input
-                type="password"
-                value={passwordData.currentPassword}
-                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                className="form-input"
-                placeholder="Enter current password"
-                required
-              />
+              <div className="password-input-wrapper">
+                <input
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                  className="form-input"
+                  placeholder="Enter current password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowCurrentPassword((prev) => !prev)}
+                  title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showCurrentPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="dashboard-form-grid">
               <div className="form-group">
                 <label className="form-label">New Password</label>
-                <input
-                  type="password"
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  className="form-input"
-                  placeholder="Min 6 characters"
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                    className="form-input"
+                    placeholder="Min 6 characters"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                    title={showNewPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showNewPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                  </button>
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label">Confirm New Password</label>
-                <input
-                  type="password"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  className="form-input"
-                  placeholder="Re-enter new password"
-                  required
-                />
+                <div className="password-input-wrapper">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                    className="form-input"
+                    placeholder="Re-enter new password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -801,25 +841,47 @@ const Dashboard = ({ user, setUser, API_URL }) => {
                   <div className="dashboard-form-grid">
                     <div className="form-group">
                       <label className="form-label">New Password</label>
-                      <input
-                        type="password"
-                        value={otpNewPassword}
-                        onChange={(e) => setOtpNewPassword(e.target.value)}
-                        className="form-input"
-                        placeholder="Min 6 characters"
-                        required
-                      />
+                      <div className="password-input-wrapper">
+                        <input
+                          type={showOtpNewPassword ? 'text' : 'password'}
+                          value={otpNewPassword}
+                          onChange={(e) => setOtpNewPassword(e.target.value)}
+                          className="form-input"
+                          placeholder="Min 6 characters"
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="password-toggle-btn"
+                          onClick={() => setShowOtpNewPassword((prev) => !prev)}
+                          title={showOtpNewPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showOtpNewPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showOtpNewPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                        </button>
+                      </div>
                     </div>
                     <div className="form-group">
                       <label className="form-label">Confirm New Password</label>
-                      <input
-                        type="password"
-                        value={otpConfirmPassword}
-                        onChange={(e) => setOtpConfirmPassword(e.target.value)}
-                        className="form-input"
-                        placeholder="Confirm password"
-                        required
-                      />
+                      <div className="password-input-wrapper">
+                        <input
+                          type={showOtpConfirmPassword ? 'text' : 'password'}
+                          value={otpConfirmPassword}
+                          onChange={(e) => setOtpConfirmPassword(e.target.value)}
+                          className="form-input"
+                          placeholder="Confirm password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="password-toggle-btn"
+                          onClick={() => setShowOtpConfirmPassword((prev) => !prev)}
+                          title={showOtpConfirmPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showOtpConfirmPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showOtpConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
