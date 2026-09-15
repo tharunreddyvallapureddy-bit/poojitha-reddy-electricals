@@ -188,9 +188,6 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
               <Link to="/admin-dashboard" className="nav-link admin-active-link" onClick={() => setMobileMenuOpen(false)}>
                 Admin Panel
               </Link>
-              <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
-                Customer Website
-              </Link>
               <span className="nav-divider"></span>
               {admin && renderAdminProfile()}
             </>
