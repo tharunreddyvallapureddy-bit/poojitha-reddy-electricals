@@ -1,4 +1,4 @@
-const API_URL = 'https://poojitha-reddy-electricals-backend.onrender.com';
+const API_URL = process.env.API_URL || 'https://poojitha-reddy-electricals-backend.onrender.com';
 
 async function request(endpoint, options = {}) {
   const url = `${API_URL}${endpoint}`;
@@ -168,16 +168,35 @@ async function run() {
       customerPhone: testUser.phone,
       serviceType: 'House Wiring',
       bookingDate: bookingDate.toISOString().split('T')[0],
-      description: 'Need electrical wiring for new hall and MCB box installation in Muddanur.'
+      description: 'Need electrical wiring for new hall and MCB box installation in Muddanur.',
+      address: {
+        street: 'Main Road, Near Old Bus Stand',
+        landmark: 'Opposite State Bank',
+        villageTown: 'Nallaballe, Muddanur',
+        district: 'YSR Kadapa',
+        state: 'Andhra Pradesh',
+        pincode: '516380',
+        coordinates: { lat: 14.6738, lng: 78.4069 }
+      }
     }
   });
-  assert(bookingRes.status === 201 && bookingRes.data.bookingCode, `Booking created with code: ${bookingRes.data.bookingCode}`);
+  assert(
+    bookingRes.status === 201 && 
+    bookingRes.data.bookingCode && 
+    bookingRes.data.address?.villageTown === 'Nallaballe, Muddanur', 
+    `Booking created with code: ${bookingRes.data.bookingCode} and service address registered`
+  );
   const createdBooking = bookingRes.data;
 
   // 10. Track Booking by Code
   console.log("\n10. Testing Booking Status Tracking...");
   const trackRes = await request(`/api/bookings/track/${createdBooking.bookingCode}`);
-  assert(trackRes.status === 200 && trackRes.data.status === 'Pending', `Booking tracked by reference code: Status is ${trackRes.data.status}`);
+  assert(
+    trackRes.status === 200 && 
+    trackRes.data.status === 'Pending' && 
+    trackRes.data.address?.street === 'Main Road, Near Old Bus Stand', 
+    `Booking tracked by reference code: Status is ${trackRes.data.status} with verified address`
+  );
 
   // 11. Customer My Bookings List
   console.log("\n11. Testing Customer My Bookings Endpoint...");

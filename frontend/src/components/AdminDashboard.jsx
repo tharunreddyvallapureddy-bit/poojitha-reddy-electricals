@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   CalendarIcon, UserIcon, PhoneIcon, ClipboardIcon, 
-  CheckIcon, XIcon, LoaderIcon, StarIcon, MailIcon 
+  CheckIcon, XIcon, LoaderIcon, StarIcon, MailIcon, MapPinIcon 
 } from './Icons';
 
 const AdminDashboard = ({ admin, API_URL }) => {
@@ -302,8 +302,40 @@ const AdminDashboard = ({ admin, API_URL }) => {
                       <div className="booking-card-body">
                         <div className="booking-body-meta">
                           <p><strong>Customer:</strong> {booking.customerName}</p>
-                          <p><strong>Phone:</strong> {booking.customerPhone}</p>
+                          <p><strong>Phone:</strong> <a href={`tel:${booking.customerPhone}`} style={{ color: 'var(--accent-cyan)' }}>{booking.customerPhone}</a></p>
                           <p><strong>Date:</strong> {new Date(booking.bookingDate).toLocaleDateString()}</p>
+                          {booking.address && (booking.address.street || booking.address.villageTown) && (
+                            <p style={{ gridColumn: '1 / -1', marginTop: '4px' }}>
+                              <strong><MapPinIcon size={14} className="text-cyan" /> Service Location:</strong>{' '}
+                              {[
+                                booking.address.street,
+                                booking.address.landmark ? `(Landmark: ${booking.address.landmark})` : '',
+                                booking.address.villageTown,
+                                booking.address.district,
+                                booking.address.state,
+                                booking.address.pincode
+                              ].filter(Boolean).join(', ')}
+                              {booking.address.coordinates?.lat && booking.address.coordinates?.lng ? (
+                                <a 
+                                  href={`https://www.google.com/maps?q=${booking.address.coordinates.lat},${booking.address.coordinates.lng}`}
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  style={{ marginLeft: '10px', color: 'var(--accent-cyan)', fontWeight: '600', textDecoration: 'underline' }}
+                                >
+                                  🗺️ Navigate on Google Maps
+                                </a>
+                              ) : (
+                                <a 
+                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([booking.address.street, booking.address.villageTown, booking.address.district, booking.address.pincode].filter(Boolean).join(', '))}`}
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  style={{ marginLeft: '10px', color: 'var(--accent-cyan)', fontWeight: '600', textDecoration: 'underline' }}
+                                >
+                                  🗺️ Search on Google Maps
+                                </a>
+                              )}
+                            </p>
+                          )}
                         </div>
                         
                         <div className="booking-body-desc">

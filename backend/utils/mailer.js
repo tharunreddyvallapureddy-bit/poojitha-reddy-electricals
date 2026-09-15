@@ -61,6 +61,24 @@ const sendAdminBookingNotification = async (booking) => {
     day: 'numeric'
   });
 
+  const addr = booking.address || {};
+  const addressParts = [
+    addr.street,
+    addr.landmark ? `(Landmark: ${addr.landmark})` : '',
+    addr.villageTown,
+    addr.district,
+    addr.state,
+    addr.pincode
+  ].filter(Boolean);
+  const formattedAddress = addressParts.length > 0 ? addressParts.join(', ') : 'Not specified';
+
+  let mapsUrl = '';
+  if (addr.coordinates && addr.coordinates.lat && addr.coordinates.lng) {
+    mapsUrl = `https://www.google.com/maps?q=${addr.coordinates.lat},${addr.coordinates.lng}`;
+  } else if (addressParts.length > 0) {
+    mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formattedAddress)}`;
+  }
+
   const emailSubject = `⚡ New Booking Alert: ${booking.serviceType} [${booking.bookingCode}]`;
   const emailHtml = `
     <div style="font-family: Arial, sans-serif; background-color: #0b0f19; color: #f8fafc; padding: 30px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #1e293b;">
@@ -87,6 +105,13 @@ const sendAdminBookingNotification = async (booking) => {
           <td style="padding: 10px 0; color: #94a3b8; font-size: 14px;">Customer Contact:</td>
           <td style="padding: 10px 0; color: #38bdf8; font-weight: bold; font-size: 15px;">
             <a href="tel:${booking.customerPhone}" style="color: #38bdf8; text-decoration: none;">📞 ${booking.customerPhone}</a>
+          </td>
+        </tr>
+        <tr style="border-bottom: 1px solid #334155;">
+          <td style="padding: 10px 0; color: #94a3b8; font-size: 14px;">Service Address:</td>
+          <td style="padding: 10px 0; color: #f8fafc; font-weight: bold; font-size: 14px;">
+            📍 ${formattedAddress}
+            ${mapsUrl ? `<br/><a href="${mapsUrl}" target="_blank" style="color: #38bdf8; font-size: 13px; font-weight: normal; text-decoration: underline; margin-top: 4px; display: inline-block;">🗺️ Open in Google Maps</a>` : ''}
           </td>
         </tr>
         <tr style="border-bottom: 1px solid #334155;">
@@ -150,6 +175,8 @@ const sendAdminBookingNotification = async (booking) => {
             service: booking.serviceType,
             customerName: booking.customerName,
             customerPhone: booking.customerPhone,
+            serviceAddress: formattedAddress,
+            mapsLink: mapsUrl,
             visitDate: visitDateStr,
             description: booking.description || 'None',
             adminPortal: 'https://poojithareddyelectricals.dpdns.org/#/admin-login'
@@ -168,7 +195,7 @@ const sendAdminBookingNotification = async (booking) => {
   // 2. Send Mobile Push Alert to 6281752093 via free ntfy topic
   try {
     const ntfyTopic = `poojitha-reddy-bookings-${ADMIN_NOTIFICATION_PHONE}`;
-    const messageBody = `Customer: ${booking.customerName}\nPhone: ${booking.customerPhone}\nDate: ${visitDateStr}\nService: ${booking.serviceType}\nRef: ${booking.bookingCode}`;
+    const messageBody = `Customer: ${booking.customerName}\nPhone: ${booking.customerPhone}\nAddress: ${formattedAddress}\nDate: ${visitDateStr}\nService: ${booking.serviceType}\nRef: ${booking.bookingCode}`;
 
     await fetch(`https://ntfy.sh/${ntfyTopic}`, {
       method: 'POST',
@@ -176,7 +203,7 @@ const sendAdminBookingNotification = async (booking) => {
         'Title': `New Booking: ${booking.serviceType}`,
         'Priority': 'urgent',
         'Tags': 'wrench,zap,telephone_receiver',
-        'Click': 'https://poojithareddyelectricals.dpdns.org/#/admin-login'
+        'Click': mapsUrl || 'https://poojithareddyelectricals.dpdns.org/#/admin-login'
       },
       body: messageBody
     });

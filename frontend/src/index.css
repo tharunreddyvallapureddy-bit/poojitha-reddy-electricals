@@ -2317,3 +2317,126 @@ input:checked + .switch-slider:before {
   color: var(--accent-purple);
   text-shadow: 0 0 8px var(--accent-cyan-glow);
 }
+
+/* Booking Service Address Section & Geolocation */
+.booking-address-section {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.address-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.address-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.address-title-text {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.btn-autodetect-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 225, 255, 0.08);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-autodetect-location:hover:not(:disabled) {
+  background: rgba(0, 225, 255, 0.18);
+  box-shadow: 0 0 14px var(--accent-cyan-glow);
+  transform: translateY(-1px);
+}
+
+.btn-autodetect-location:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.location-status-badge {
+  padding: 10px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-status-badge.badge-info {
+  background: rgba(0, 225, 255, 0.08);
+  border: 1px solid rgba(0, 225, 255, 0.25);
+  color: var(--accent-cyan);
+}
+
+.location-status-badge.badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.location-status-badge.badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.address-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.address-fields-grid .full-span {
+  grid-column: 1 / -1;
+}
+
+.coords-detected-pill {
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--accent-cyan);
+  background: rgba(0, 225, 255, 0.06);
+  border: 1px dashed rgba(0, 225, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+@media (max-width: 600px) {
+  .address-fields-grid {
+    grid-template-columns: 1fr;
+  }
+  .address-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-autodetect-location {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

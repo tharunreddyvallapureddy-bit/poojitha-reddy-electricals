@@ -16,18 +16,46 @@ const createModelProxy = (collectionName, MongoModel) => {
       writeData(db);
       return newItem;
     },
-    find: async (query = {}) => {
-      const db = readData();
-      let results = db[collectionName] || [];
-      results = results.filter(item => {
-        for (let key in query) {
-          if (query[key] !== undefined && item[key] !== query[key]) {
-            return false;
+    find: (query = {}) => {
+      const getResults = () => {
+        const db = readData();
+        let results = db[collectionName] || [];
+        results = results.filter(item => {
+          for (let key in query) {
+            if (query[key] !== undefined && item[key] !== query[key]) {
+              return false;
+            }
           }
-        }
-        return true;
-      });
-      return results;
+          return true;
+        });
+        return results;
+      };
+
+      let p = Promise.resolve().then(() => getResults());
+      p.sort = function(criteria) {
+        p = p.then(items => {
+          if (criteria && typeof criteria === 'object') {
+            const key = Object.keys(criteria)[0];
+            const order = criteria[key];
+            return [...items].sort((a, b) => {
+              if (a[key] < b[key]) return order === 1 ? -1 : 1;
+              if (a[key] > b[key]) return order === 1 ? 1 : -1;
+              return 0;
+            });
+          }
+          return items;
+        });
+        p.sort = this.sort;
+        p.limit = this.limit;
+        return p;
+      };
+      p.limit = function(num) {
+        p = p.then(items => items.slice(0, num));
+        p.sort = this.sort;
+        p.limit = this.limit;
+        return p;
+      };
+      return p;
     },
     findOne: async (query = {}) => {
       const db = readData();
@@ -56,24 +84,30 @@ const createModelProxy = (collectionName, MongoModel) => {
         }
       };
     },
-    findById: async (id) => {
-      const db = readData();
-      const items = db[collectionName] || [];
-      const found = items.find(item => item._id === id);
-      if (!found) return null;
-      return {
-        ...found,
-        save: async function() {
-          const d = readData();
-          const idx = d[collectionName].findIndex(x => x._id === id);
-          if (idx !== -1) {
-            d[collectionName][idx] = { ...d[collectionName][idx], ...this };
-            delete d[collectionName][idx].save;
-            writeData(d);
+    findById: (id) => {
+      const getResult = () => {
+        const db = readData();
+        const items = db[collectionName] || [];
+        const found = items.find(item => item._id === id);
+        if (!found) return null;
+        return {
+          ...found,
+          save: async function() {
+            const d = readData();
+            const idx = d[collectionName].findIndex(x => x._id === id);
+            if (idx !== -1) {
+              d[collectionName][idx] = { ...d[collectionName][idx], ...this };
+              delete d[collectionName][idx].save;
+              writeData(d);
+            }
+            return d[collectionName][idx];
           }
-          return d[collectionName][idx];
-        }
+        };
       };
+
+      const p = Promise.resolve().then(() => getResult());
+      p.select = function() { return p; };
+      return p;
     },
     findByIdAndUpdate: async (id, update) => {
       const db = readData();

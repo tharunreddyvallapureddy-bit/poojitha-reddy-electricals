@@ -15,7 +15,7 @@ const generateBookingCode = () => {
 // @access  Public (Guest) or Private (User)
 const createBooking = async (req, res) => {
   try {
-    const { customerName, customerPhone, serviceType, bookingDate, description } = req.body;
+    const { customerName, customerPhone, serviceType, bookingDate, description, address } = req.body;
 
     if (!customerName || !customerPhone || !serviceType || !bookingDate) {
       return res.status(400).json({ message: 'Please provide all required fields' });
@@ -25,6 +25,24 @@ const createBooking = async (req, res) => {
     // If auth token is provided and verified by protectUser, req.user will exist
     const userId = req.user ? req.user._id : null;
 
+    const bookingAddress = address ? {
+      street: address.street || '',
+      landmark: address.landmark || '',
+      villageTown: address.villageTown || '',
+      district: address.district || '',
+      state: address.state || 'Andhra Pradesh',
+      pincode: address.pincode || '',
+      coordinates: address.coordinates || { lat: null, lng: null }
+    } : {
+      street: '',
+      landmark: '',
+      villageTown: '',
+      district: '',
+      state: 'Andhra Pradesh',
+      pincode: '',
+      coordinates: { lat: null, lng: null }
+    };
+
     const booking = await Booking.create({
       bookingCode,
       userId,
@@ -33,6 +51,7 @@ const createBooking = async (req, res) => {
       serviceType,
       bookingDate: new Date(bookingDate),
       description: description || '',
+      address: bookingAddress,
       status: 'Pending',
       adminNotes: '',
     });

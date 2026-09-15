@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { SearchIcon, CalendarIcon, ClipboardIcon, ToolIcon } from './Icons';
+import { SearchIcon, CalendarIcon, ClipboardIcon, ToolIcon, MapPinIcon } from './Icons';
 
 const Tracker = ({ user, API_URL }) => {
   const [searchParams] = useSearchParams();
@@ -157,6 +157,33 @@ const Tracker = ({ user, API_URL }) => {
                     <CalendarIcon size={14} /> {new Date(booking.bookingDate).toLocaleDateString()}
                   </span>
                 </div>
+                {booking.address && (booking.address.street || booking.address.villageTown) && (
+                  <div className="details-item full-width">
+                    <span className="label">
+                      <MapPinIcon size={14} className="text-cyan" /> Service Address (Worksite)
+                    </span>
+                    <p className="val" style={{ marginTop: '4px' }}>
+                      {[
+                        booking.address.street,
+                        booking.address.landmark ? `(Landmark: ${booking.address.landmark})` : '',
+                        booking.address.villageTown,
+                        booking.address.district,
+                        booking.address.state,
+                        booking.address.pincode
+                      ].filter(Boolean).join(', ')}
+                    </p>
+                    {booking.address.coordinates?.lat && booking.address.coordinates?.lng && (
+                      <a 
+                        href={`https://www.google.com/maps?q=${booking.address.coordinates.lat},${booking.address.coordinates.lng}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ display: 'inline-block', fontSize: '0.85rem', color: 'var(--accent-cyan)', marginTop: '4px' }}
+                      >
+                        📍 View Worksite on Google Maps
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div className="details-item full-width">
                   <span className="label">Work Description</span>
                   <p className="val-desc">{booking.description || 'No description provided.'}</p>
