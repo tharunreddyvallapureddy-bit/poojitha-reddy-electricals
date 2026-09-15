@@ -2938,6 +2938,32 @@ input:checked + .switch-slider:before {
   flex: 1;
 }
 
+/* Reset to Default Avatar Button - White pill with crisp neon black / solid black font */
+.btn-reset-avatar,
+.btn-outline {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 8px;
+  font-weight: 800 !important;
+  font-size: 0.88rem;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-reset-avatar:hover,
+.btn-outline:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
 .profile-verified-badge {
   display: inline-flex;
   align-items: center;

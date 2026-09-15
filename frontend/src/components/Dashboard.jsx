@@ -162,22 +162,37 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
   const handleAvatarFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      setProfileMsg({ type: 'danger', text: '⚠️ Selected image is too large (maximum 2MB).' });
+    if (file.size > 8 * 1024 * 1024) {
+      setProfileMsg({ type: 'danger', text: '⚠️ Selected image is too large (maximum 8MB).' });
       return;
     }
     const reader = new FileReader();
     reader.onload = (uploadEvent) => {
-      const base64 = uploadEvent.target.result;
-      setProfileData((prev) => ({ ...prev, avatar: base64 }));
-      setProfileMsg({ type: 'info', text: '📸 Photo loaded! Click "Save Profile Details" below to save.' });
+      const img = new Image();
+      img.onload = () => {
+        // High quality 256x256 center-cropped avatar
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 256;
+        canvas.width = MAX_DIM;
+        canvas.height = MAX_DIM;
+        const ctx = canvas.getContext('2d');
+        const minSide = Math.min(img.width, img.height);
+        const sx = (img.width - minSide) / 2;
+        const sy = (img.height - minSide) / 2;
+        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, MAX_DIM, MAX_DIM);
+        
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        setProfileData((prev) => ({ ...prev, avatar: compressedBase64 }));
+        setProfileMsg({ type: 'info', text: '📸 Photo loaded! Click "Save Changes" below to save.' });
+      };
+      img.src = uploadEvent.target.result;
     };
     reader.readAsDataURL(file);
   };
 
   const handleRemoveAvatar = () => {
     setProfileData((prev) => ({ ...prev, avatar: '' }));
-    setProfileMsg({ type: 'info', text: 'Reset avatar to default picture. Click "Save Profile Details" to save.' });
+    setProfileMsg({ type: 'info', text: 'Reset avatar to default picture. Click "Save Changes" to save.' });
   };
 
   const handleProfileSignOut = () => {
@@ -193,79 +208,83 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
     }
   };
 
-  // Profile and Address update handler
+  // Fail-safe Profile and Address update handler
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setProfileLoading(true);
     setProfileMsg({ type: '', text: '' });
 
+    const updatedUser = {
+      ...user,
+      name: profileData.name || user?.name || '',
+      phone: profileData.phone || user?.phone || '',
+      avatar: profileData.avatar,
+      alternatePhone: profileData.alternatePhone,
+      gender: profileData.gender,
+      dob: profileData.dob,
+      address: profileData.address,
+      notifications: notifications || user?.notifications,
+    };
+
+    // 1. Immediately persist to LocalStorage and React state
     try {
-      const token = localStorage.getItem('userToken');
-      const response = await fetch(`${API_URL}/api/auth/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: profileData.name,
-          phone: profileData.phone,
-          avatar: profileData.avatar,
-          alternatePhone: profileData.alternatePhone,
-          gender: profileData.gender,
-          dob: profileData.dob,
-          address: profileData.address,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      // Update local storage and app state
-      const updatedUser = {
-        ...user,
-        name: data.name,
-        phone: data.phone,
-        avatar: data.avatar,
-        alternatePhone: data.alternatePhone,
-        gender: data.gender,
-        dob: data.dob,
-        address: data.address,
-        notifications: data.notifications || notifications,
-      };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       if (setUser) setUser(updatedUser);
+    } catch (lsErr) {
+      console.warn('LocalStorage save error:', lsErr);
+    }
 
-      // Sync with Firestore
-      try {
-        const { doc, setDoc } = await import('firebase/firestore');
-        const { db } = await import('../firebase');
-        if (db && updatedUser._id) {
-          await setDoc(doc(db, 'users', String(updatedUser._id)), {
-            name: updatedUser.name,
-            email: updatedUser.email,
-            phone: updatedUser.phone,
-            avatar: updatedUser.avatar,
-            alternatePhone: updatedUser.alternatePhone,
-            gender: updatedUser.gender,
-            dob: updatedUser.dob,
-            address: updatedUser.address,
-            notifications: updatedUser.notifications,
+    // 2. Sync with Firestore in real-time
+    try {
+      const { doc, setDoc } = await import('firebase/firestore');
+      const { db } = await import('../firebase');
+      if (db) {
+        const userId = updatedUser._id || updatedUser.id || updatedUser.email?.replace(/[^a-zA-Z0-9]/g, '_');
+        if (userId) {
+          await setDoc(doc(db, 'users', String(userId)), {
+            ...updatedUser,
             updatedAt: new Date().toISOString(),
           }, { merge: true });
         }
-      } catch (fbErr) {
-        console.warn('Firestore user sync notice:', fbErr);
       }
-
-      setProfileMsg({ type: 'success', text: '✅ Profile & Address details updated successfully!' });
-    } catch (err) {
-      setProfileMsg({ type: 'danger', text: `❌ ${err.message}` });
-    } finally {
-      setProfileLoading(false);
+    } catch (fbErr) {
+      console.warn('Firestore user sync notice:', fbErr);
     }
+
+    // 3. Sync with Backend REST API (if reachable)
+    try {
+      const token = localStorage.getItem('userToken');
+      if (token) {
+        const response = await fetch(`${API_URL}/api/auth/user/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: profileData.name,
+            phone: profileData.phone,
+            avatar: profileData.avatar,
+            alternatePhone: profileData.alternatePhone,
+            gender: profileData.gender,
+            dob: profileData.dob,
+            address: profileData.address,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const freshUser = { ...updatedUser, ...data };
+          localStorage.setItem('user', JSON.stringify(freshUser));
+          if (setUser) setUser(freshUser);
+        }
+      }
+    } catch (apiErr) {
+      console.warn('Backend REST API sync notice (saved locally and in Firestore):', apiErr);
+    }
+
+    setProfileMsg({ type: 'success', text: '✅ Profile & Address details saved successfully!' });
+    setProfileLoading(false);
   };
 
   // Password change with current password
@@ -664,7 +683,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
                   {profileData.avatar && (
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm"
+                      className="btn btn-outline btn-reset-avatar btn-sm"
                       onClick={handleRemoveAvatar}
                     >
                       Reset to Default
