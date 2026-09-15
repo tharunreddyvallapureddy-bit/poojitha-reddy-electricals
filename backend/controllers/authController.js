@@ -409,6 +409,11 @@ const loginAdmin = async (req, res) => {
     res.json({
       _id: admin._id,
       username: admin.username,
+      name: admin.name || 'Vinay (Poojitha Reddy)',
+      email: admin.email || 'poojithareddyelectricals@gmail.com',
+      phone: admin.phone || '8498870697',
+      avatar: admin.avatar || '',
+      role: admin.role || 'Master Administrator',
       token: generateToken(admin._id),
     });
   } catch (error) {
@@ -427,6 +432,11 @@ const getAdminProfile = async (req, res) => {
       res.json({
         _id: admin._id,
         username: admin.username,
+        name: admin.name || 'Vinay (Poojitha Reddy)',
+        email: admin.email || 'poojithareddyelectricals@gmail.com',
+        phone: admin.phone || '8498870697',
+        avatar: admin.avatar || '',
+        role: admin.role || 'Master Administrator',
       });
     } else {
       res.status(404).json({ message: 'Admin not found' });
@@ -434,6 +444,105 @@ const getAdminProfile = async (req, res) => {
   } catch (error) {
     console.error('Get admin profile error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Update admin profile details & avatar
+// @route   PUT /api/auth/admin/profile
+// @access  Private (Admin)
+const updateAdminProfile = async (req, res) => {
+  try {
+    const { name, email, phone, avatar, username } = req.body;
+    const admin = await Admin.findById(req.admin._id);
+
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    if (username && username.trim() !== admin.username) {
+      const trimmedUser = username.toLowerCase().trim();
+      const existing = await Admin.findOne({ username: trimmedUser });
+      if (existing && existing._id.toString() !== admin._id.toString()) {
+        return res.status(400).json({ message: 'Username is already taken by another admin' });
+      }
+      admin.username = trimmedUser;
+    }
+
+    if (name !== undefined) admin.name = name.trim();
+    if (email !== undefined) admin.email = email.trim();
+    if (phone !== undefined) admin.phone = phone.trim();
+    if (avatar !== undefined) admin.avatar = avatar;
+    admin.updatedAt = new Date();
+
+    if (admin.save) {
+      await admin.save();
+    } else {
+      await Admin.findByIdAndUpdate(admin._id, {
+        name: admin.name,
+        username: admin.username,
+        email: admin.email,
+        phone: admin.phone,
+        avatar: admin.avatar,
+        updatedAt: admin.updatedAt,
+      });
+    }
+
+    res.json({
+      _id: admin._id,
+      username: admin.username,
+      name: admin.name,
+      email: admin.email,
+      phone: admin.phone,
+      avatar: admin.avatar,
+      role: admin.role || 'Master Administrator',
+      message: 'Admin profile updated successfully',
+    });
+  } catch (error) {
+    console.error('Update admin profile error:', error);
+    res.status(500).json({ message: 'Server error updating admin profile' });
+  }
+};
+
+// @desc    Change admin password
+// @route   PUT /api/auth/admin/change-password
+// @access  Private (Admin)
+const changeAdminPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Please provide both current and new password' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' });
+    }
+
+    const admin = await Admin.findById(req.admin._id);
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    admin.password = hashedPassword;
+    admin.updatedAt = new Date();
+
+    if (admin.save) {
+      await admin.save();
+    } else {
+      await Admin.findByIdAndUpdate(admin._id, { password: hashedPassword, updatedAt: admin.updatedAt });
+    }
+
+    res.json({ message: 'Admin password changed successfully' });
+  } catch (error) {
+    console.error('Change admin password error:', error);
+    res.status(500).json({ message: 'Server error changing admin password' });
   }
 };
 
@@ -447,4 +556,6 @@ module.exports = {
   resetPasswordWithCode,
   loginAdmin,
   getAdminProfile,
+  updateAdminProfile,
+  changeAdminPassword,
 };

@@ -46,7 +46,15 @@ const AdminAuth = ({ setAdmin, API_URL }) => {
 
       // Store in localStorage
       localStorage.setItem('adminToken', data.token);
-      localStorage.setItem('admin', JSON.stringify({ _id: data._id, username: data.username }));
+      localStorage.setItem('admin', JSON.stringify({
+        _id: data._id,
+        username: data.username,
+        name: data.name || 'Vinay (Poojitha Reddy)',
+        email: data.email || 'poojithareddyelectricals@gmail.com',
+        phone: data.phone || '8498870697',
+        avatar: data.avatar || '',
+        role: data.role || 'Master Administrator',
+      }));
       
       // Update App state
       setAdmin(data);

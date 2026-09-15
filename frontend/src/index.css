@@ -3135,5 +3135,34 @@ input:checked + .switch-slider:before {
   border: 1px solid rgba(168, 85, 247, 0.4) !important;
 }
 
+.admin-camera-btn {
+  background: var(--accent-purple) !important;
+  color: #fff !important;
+}
 
+.admin-camera-btn:hover {
+  background: #d8b4fe !important;
+  color: #000 !important;
+  transform: scale(1.1);
+}
 
+.admin-signout-card {
+  margin-top: 36px;
+  padding: 24px;
+  background: rgba(239, 68, 68, 0.04);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 16px;
+}
+
+.admin-signout-btn {
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.admin-signout-btn:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+}

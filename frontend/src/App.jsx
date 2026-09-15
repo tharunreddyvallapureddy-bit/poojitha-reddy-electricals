@@ -132,7 +132,7 @@ function App() {
 
             {/* Admin Dashboard */}
             <Route path="/admin-dashboard" element={
-              admin ? <AdminDashboard admin={admin} API_URL={API_URL} /> : <Navigate to="/admin-login" />
+              admin ? <AdminDashboard admin={admin} setAdmin={setAdmin} API_URL={API_URL} logoutAdmin={logoutAdmin} /> : <Navigate to="/admin-login" />
             } />
 
             {/* Fallback route */}

@@ -70,14 +70,14 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
       >
         <div className="nav-avatar-ring admin-ring">
           <img
-            src={DEFAULT_AVATAR_SRC}
+            src={admin?.avatar || DEFAULT_AVATAR_SRC}
             alt="Admin Avatar"
             className="nav-avatar-img"
             onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
           />
         </div>
         <span className="nav-user-firstname admin-badge-text">
-          {admin?.username ? admin.username.toUpperCase() : 'ADMIN'}
+          {admin?.name ? admin.name.split(' ')[0] : (admin?.username ? admin.username.toUpperCase() : 'ADMIN')}
         </span>
         <ChevronDownIcon size={14} className={`nav-profile-chevron ${adminMenuOpen ? 'rotate' : ''}`} />
       </button>
@@ -88,22 +88,22 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
           <div className="dropdown-user-header">
             <div className="dropdown-avatar-ring admin-avatar-ring">
               <img
-                src={DEFAULT_AVATAR_SRC}
+                src={admin?.avatar || DEFAULT_AVATAR_SRC}
                 alt="Admin Avatar"
                 className="dropdown-avatar-img"
                 onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
               />
             </div>
             <div className="dropdown-user-meta">
-              <div className="dropdown-user-name" title={admin?.username || 'Administrator'}>
-                {admin?.username ? admin.username.toUpperCase() : 'ADMINISTRATOR'}
+              <div className="dropdown-user-name" title={admin?.name || admin?.username || 'Administrator'}>
+                {admin?.name || (admin?.username ? admin.username.toUpperCase() : 'ADMINISTRATOR')}
               </div>
               <div className="dropdown-user-email">
-                poojithareddyelectricals@gmail.com
+                {admin?.email || 'poojithareddyelectricals@gmail.com'}
               </div>
               <div className="dropdown-user-sub-row">
                 <span className="dropdown-user-badge admin-badge">
-                  🛡️ Master Admin
+                  🛡️ {admin?.role || 'Master Admin'}
                 </span>
               </div>
             </div>
@@ -120,6 +120,14 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
             >
               <ClipboardIcon size={16} className="dropdown-item-icon text-purple" />
               <span>Admin Control Panel</span>
+            </Link>
+            <Link
+              to="/admin-dashboard?tab=profile"
+              className="dropdown-item"
+              onClick={() => { setAdminMenuOpen(false); setMobileMenuOpen(false); }}
+            >
+              <UserIcon size={16} className="dropdown-item-icon text-purple" />
+              <span>Admin Profile & Settings</span>
             </Link>
             <Link
               to="/"

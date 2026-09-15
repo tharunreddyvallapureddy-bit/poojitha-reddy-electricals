@@ -257,6 +257,20 @@ async function run() {
   });
   assert(adminProfileRes.status === 200 && adminProfileRes.data.username === 'admin', `Admin profile verified`);
 
+  // 15b. Admin Profile Update
+  console.log("\n15b. Testing Admin Profile Update...");
+  const updateAdminRes = await request('/api/auth/admin/profile', {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${adminToken}` },
+    body: {
+      name: 'Vinay (Poojitha Reddy)',
+      email: 'poojithareddyelectricals@gmail.com',
+      phone: '8498870697',
+      avatar: 'data:image/jpeg;base64,/9j/4AAQSkZJRg=='
+    }
+  });
+  assert(updateAdminRes.status === 200 && updateAdminRes.data.name === 'Vinay (Poojitha Reddy)', `Admin profile updated and verified`);
+
   // 16. Admin Fetch All Bookings
   console.log("\n16. Testing Admin Fetch All Bookings...");
   const allBookingsRes = await request('/api/bookings', {

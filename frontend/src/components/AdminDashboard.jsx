@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   CalendarIcon, UserIcon, PhoneIcon, ClipboardIcon, 
-  CheckIcon, XIcon, LoaderIcon, StarIcon, MailIcon, MapPinIcon, ShieldCheckIcon 
+  CheckIcon, XIcon, LoaderIcon, StarIcon, MailIcon, MapPinIcon, ShieldCheckIcon,
+  CameraIcon, LogOutIcon, LockIcon, EyeIcon, EyeOffIcon 
 } from './Icons';
 import { DEFAULT_AVATAR_SRC } from '../assets/defaultAvatarBase64';
 
-const AdminDashboard = ({ admin, API_URL }) => {
-  const [activeTab, setActiveTab] = useState('bookings'); // bookings, reviews, messages, overview
+const AdminDashboard = ({ admin, setAdmin, API_URL, logoutAdmin }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'bookings';
+  const [activeTab, setActiveTab] = useState(
+    ['bookings', 'reviews', 'messages', 'overview', 'profile'].includes(initialTab) ? initialTab : 'bookings'
+  );
   const [bookings, setBookings] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -21,7 +26,233 @@ const AdminDashboard = ({ admin, API_URL }) => {
     adminNotes: '',
   });
 
+  // Admin Profile & Customization State
+  const [adminProfileData, setAdminProfileData] = useState({
+    name: admin?.name || 'Vinay (Poojitha Reddy)',
+    username: admin?.username || 'admin',
+    email: admin?.email || 'poojithareddyelectricals@gmail.com',
+    phone: admin?.phone || '8498870697',
+    avatar: admin?.avatar || '',
+    role: admin?.role || 'Master Administrator',
+  });
+  const [pendingAvatar, setPendingAvatar] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
+  const fileInputRef = useRef(null);
+
+  // Admin Password Change State
+  const [adminPasswordData, setAdminPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState({ type: '', text: '' });
+
   const navigate = useNavigate();
+
+  // Sync activeTab with URL search params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['bookings', 'reviews', 'messages', 'overview', 'profile'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  // Sync profile data when admin prop updates
+  useEffect(() => {
+    if (admin) {
+      setAdminProfileData((prev) => ({
+        ...prev,
+        name: admin.name || prev.name || 'Vinay (Poojitha Reddy)',
+        username: admin.username || prev.username || 'admin',
+        email: admin.email || prev.email || 'poojithareddyelectricals@gmail.com',
+        phone: admin.phone || prev.phone || '8498870697',
+        avatar: admin.avatar || prev.avatar || '',
+        role: admin.role || prev.role || 'Master Administrator',
+      }));
+    }
+  }, [admin]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
+
+  // Avatar Selection with 256x256 Off-Screen Canvas Compression
+  const handleAvatarFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      setProfileMsg({ type: 'danger', text: '⚠️ Selected image is too large (maximum 8MB).' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const img = new Image();
+      img.onload = () => {
+        // High quality 256x256 center-cropped avatar
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 256;
+        canvas.width = MAX_DIM;
+        canvas.height = MAX_DIM;
+        const ctx = canvas.getContext('2d');
+        const minSide = Math.min(img.width, img.height);
+        const sx = (img.width - minSide) / 2;
+        const sy = (img.height - minSide) / 2;
+        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, MAX_DIM, MAX_DIM);
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        setPendingAvatar(compressedBase64);
+        setProfileMsg({ type: 'info', text: '📸 New photo selected! Click "Save Changes" below to update your profile photo.' });
+      };
+      img.src = uploadEvent.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Resilient multi-tier saving (LocalStorage + React State + Firestore + Backend REST API)
+  const handleAdminProfileSubmit = async (e) => {
+    e.preventDefault();
+    setProfileLoading(true);
+    setProfileMsg({ type: '', text: '' });
+
+    const finalAvatar = pendingAvatar !== null
+      ? pendingAvatar
+      : (adminProfileData.avatar || admin?.avatar || '');
+
+    const updatedAdmin = {
+      ...admin,
+      name: adminProfileData.name.trim(),
+      username: adminProfileData.username.trim(),
+      email: adminProfileData.email.trim(),
+      phone: adminProfileData.phone.trim(),
+      avatar: finalAvatar,
+      role: adminProfileData.role || admin?.role || 'Master Administrator',
+    };
+
+    // Update local state and clear pending avatar
+    setAdminProfileData((prev) => ({ ...prev, avatar: finalAvatar }));
+    setPendingAvatar(null);
+
+    // 1. Immediately persist to LocalStorage and React State
+    try {
+      localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+      if (setAdmin) setAdmin(updatedAdmin);
+    } catch (lsErr) {
+      console.warn('LocalStorage save error:', lsErr);
+    }
+
+    // 2. Real-time Firestore sync
+    try {
+      const { doc, setDoc } = await import('firebase/firestore');
+      const { db } = await import('../firebase');
+      if (db) {
+        const adminDocId = updatedAdmin._id || 'main_admin';
+        await setDoc(doc(db, 'admins', String(adminDocId)), {
+          ...updatedAdmin,
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+      }
+    } catch (fbErr) {
+      console.warn('Firestore admin sync notice:', fbErr);
+    }
+
+    // 3. Backend REST API update
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (token) {
+        const res = await fetch(`${API_URL}/api/auth/admin/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name: updatedAdmin.name,
+            username: updatedAdmin.username,
+            email: updatedAdmin.email,
+            phone: updatedAdmin.phone,
+            avatar: finalAvatar,
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          const freshAdmin = { ...updatedAdmin, ...data };
+          localStorage.setItem('admin', JSON.stringify(freshAdmin));
+          if (setAdmin) setAdmin(freshAdmin);
+        }
+      }
+    } catch (apiErr) {
+      console.warn('Backend REST API sync notice (saved locally & Firestore):', apiErr);
+    }
+
+    setProfileMsg({ type: 'success', text: '✅ Admin profile photo & credentials saved successfully!' });
+    setProfileLoading(false);
+  };
+
+  // Password Change Handler
+  const handleAdminPasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordMsg({ type: '', text: '' });
+
+    if (adminPasswordData.newPassword !== adminPasswordData.confirmPassword) {
+      setPasswordMsg({ type: 'danger', text: '❌ New password and confirmation do not match.' });
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (adminPasswordData.newPassword.length < 6) {
+      setPasswordMsg({ type: 'danger', text: '❌ New password must be at least 6 characters long.' });
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API_URL}/api/auth/admin/change-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: adminPasswordData.currentPassword,
+          newPassword: adminPasswordData.newPassword
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to change admin password');
+      }
+
+      setPasswordMsg({ type: 'success', text: '✅ Admin password updated successfully!' });
+      setAdminPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      setPasswordMsg({ type: 'danger', text: `❌ ${err.message}` });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  // Dedicated Admin Sign Out
+  const handleProfileAdminSignOut = () => {
+    if (window.confirm('Are you sure you want to sign out of the Admin Control Panel?')) {
+      if (logoutAdmin) {
+        logoutAdmin();
+      } else {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('admin');
+        if (setAdmin) setAdmin(null);
+      }
+      navigate('/admin-login');
+    }
+  };
 
   useEffect(() => {
     if (!admin) {
@@ -229,7 +460,7 @@ const AdminDashboard = ({ admin, API_URL }) => {
           </div>
           <div>
             <span className="welcome-label text-purple">ADMIN CONTROL CENTRE</span>
-            <h2>Welcome Back, {admin?.username ? admin.username.toUpperCase() : 'Administrator'}!</h2>
+            <h2>Welcome Back, {admin?.name || (admin?.username ? admin.username.toUpperCase() : 'Administrator')}!</h2>
           </div>
         </div>
 
@@ -252,28 +483,34 @@ const AdminDashboard = ({ admin, API_URL }) => {
       {/* Tab Navigation */}
       <div className="admin-tab-nav">
         <button 
-          onClick={() => setActiveTab('bookings')} 
+          onClick={() => handleTabChange('bookings')} 
           className={`admin-tab-btn ${activeTab === 'bookings' ? 'active' : ''}`}
         >
           Bookings ({bookings.length})
         </button>
         <button 
-          onClick={() => setActiveTab('reviews')} 
+          onClick={() => handleTabChange('reviews')} 
           className={`admin-tab-btn ${activeTab === 'reviews' ? 'active text-purple-accent' : ''}`}
         >
           Review Moderation ({reviews.length})
         </button>
         <button 
-          onClick={() => setActiveTab('messages')} 
+          onClick={() => handleTabChange('messages')} 
           className={`admin-tab-btn ${activeTab === 'messages' ? 'active text-cyan-accent' : ''}`}
         >
           Inbox Messages ({messages.length})
         </button>
         <button 
-          onClick={() => setActiveTab('overview')} 
+          onClick={() => handleTabChange('overview')} 
           className={`admin-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
         >
           System Overview
+        </button>
+        <button 
+          onClick={() => handleTabChange('profile')} 
+          className={`admin-tab-btn ${activeTab === 'profile' ? 'active text-purple-accent' : ''}`}
+        >
+          <UserIcon size={15} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} /> Admin Profile & Security
         </button>
       </div>
 
@@ -562,6 +799,252 @@ const AdminDashboard = ({ admin, API_URL }) => {
                   <li><strong>Moderate Reviews:</strong> Reviews submitted by customers do not appear on the website until you approve them under the "Review Moderation" tab.</li>
                   <li><strong>Inbox Management:</strong> Track contact messages, toggle resolved states to keep inbox clear, or delete old logs.</li>
                 </ul>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: Admin Profile & Security */}
+          {activeTab === 'profile' && (
+            <div className="admin-panel-section animate-fade-in">
+              <div className="panel-header" style={{ marginBottom: '24px' }}>
+                <div>
+                  <h3 className="sub-panel-title">
+                    <UserIcon size={22} className="text-purple" /> Admin Profile & Security
+                  </h3>
+                  <p className="sub-panel-desc">
+                    Customize your administrator identity, profile photo, contact details, and manage portal security credentials.
+                  </p>
+                </div>
+              </div>
+
+              {profileMsg.text && (
+                <div className={`alert-box alert-${profileMsg.type}`} style={{ marginBottom: '24px' }}>
+                  {profileMsg.text}
+                </div>
+              )}
+
+              <form onSubmit={handleAdminProfileSubmit} className="profile-card-section">
+                {/* Avatar / Profile Photo Section */}
+                <div className="profile-avatar-card admin-profile-avatar-card">
+                  <div className="profile-avatar-preview-wrap">
+                    <div className="profile-avatar-ring admin-avatar-ring">
+                      <img
+                        src={pendingAvatar || adminProfileData.avatar || admin?.avatar || DEFAULT_AVATAR_SRC}
+                        alt={adminProfileData.name || 'Admin Profile'}
+                        className="profile-avatar-img"
+                        onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+                      />
+                      <button
+                        type="button"
+                        className="avatar-camera-btn admin-camera-btn"
+                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                        title="Change Photo"
+                        aria-label="Change Photo"
+                      >
+                        <CameraIcon size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="profile-avatar-actions">
+                    <h4 style={{ margin: '0 0 4px', fontSize: '1.05rem', color: '#fff' }}>Administrator Photo</h4>
+                    <p className="text-secondary" style={{ fontSize: '0.88rem', margin: '0 0 12px' }}>
+                      {pendingAvatar 
+                        ? '✨ New photo selected! Click "Save Changes" below to update.' 
+                        : 'Personalize your administrator profile. Accepted formats: JPG, PNG, WebP (Max 8MB).'}
+                    </p>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/png,image/jpeg,image/webp,image/jpg"
+                        style={{ display: 'none' }}
+                        onChange={handleAvatarFileSelect}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                      >
+                        <CameraIcon size={15} /> Change Photo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Admin Credentials */}
+                <div style={{ paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <h4 style={{ color: 'var(--accent-purple)', marginBottom: '16px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ShieldCheckIcon size={18} /> Administrative Credentials
+                  </h4>
+                  <div className="dashboard-form-grid">
+                    <div className="form-group">
+                      <label className="form-label">Admin Display Name *</label>
+                      <input
+                        type="text"
+                        value={adminProfileData.name}
+                        onChange={(e) => setAdminProfileData({ ...adminProfileData, name: e.target.value })}
+                        className="form-input"
+                        placeholder="e.g. Vinay (Poojitha Reddy)"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">
+                        Admin Username * <span className="profile-verified-badge admin-badge"><ShieldCheckIcon size={13} /> Login ID</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={adminProfileData.username}
+                        onChange={(e) => setAdminProfileData({ ...adminProfileData, username: e.target.value })}
+                        className="form-input"
+                        placeholder="e.g. admin"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Official Contact Email *</label>
+                      <input
+                        type="email"
+                        value={adminProfileData.email}
+                        onChange={(e) => setAdminProfileData({ ...adminProfileData, email: e.target.value })}
+                        className="form-input"
+                        placeholder="poojithareddyelectricals@gmail.com"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Primary Handyman Contact Phone *</label>
+                      <input
+                        type="tel"
+                        value={adminProfileData.phone}
+                        onChange={(e) => setAdminProfileData({ ...adminProfileData, phone: e.target.value })}
+                        className="form-input"
+                        placeholder="8498870697"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <button type="submit" className="btn btn-primary btn-lg-glow" disabled={profileLoading}>
+                    {profileLoading ? 'Saving Changes...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+
+              {/* Password Management */}
+              <div style={{ marginTop: '36px', paddingTop: '28px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <h4 style={{ color: 'var(--accent-purple)', marginBottom: '16px', fontSize: '1.05rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <LockIcon size={18} /> Change Admin Password
+                </h4>
+                <p className="text-secondary" style={{ fontSize: '0.9rem', marginBottom: '20px' }}>
+                  Update the master administrator password for logging into the Admin Control Panel.
+                </p>
+
+                {passwordMsg.text && (
+                  <div className={`alert-box alert-${passwordMsg.type}`} style={{ marginBottom: '20px' }}>
+                    {passwordMsg.text}
+                  </div>
+                )}
+
+                <form onSubmit={handleAdminPasswordChange} style={{ maxWidth: '600px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Current Password *</label>
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        value={adminPasswordData.currentPassword}
+                        onChange={(e) => setAdminPasswordData({ ...adminPasswordData, currentPassword: e.target.value })}
+                        className="form-input"
+                        placeholder="Enter current password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowCurrentPassword((prev) => !prev)}
+                        title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showCurrentPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">New Password *</label>
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={adminPasswordData.newPassword}
+                        onChange={(e) => setAdminPasswordData({ ...adminPasswordData, newPassword: e.target.value })}
+                        className="form-input"
+                        placeholder="At least 6 characters"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        title={showNewPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showNewPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Confirm New Password *</label>
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={adminPasswordData.confirmPassword}
+                        onChange={(e) => setAdminPasswordData({ ...adminPasswordData, confirmPassword: e.target.value })}
+                        className="form-input"
+                        placeholder="Re-enter new password"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '20px' }}>
+                    <button type="submit" className="btn btn-secondary" disabled={passwordLoading}>
+                      {passwordLoading ? 'Updating Password...' : 'Update Password'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Dedicated Sign Out of Admin Portal */}
+              <div className="profile-signout-card admin-signout-card">
+                <div className="profile-signout-info">
+                  <h4 style={{ color: '#f87171' }}>
+                    <LogOutIcon size={20} className="text-danger" /> Sign Out of Admin Portal
+                  </h4>
+                  <p>
+                    Ending your admin session will require logging back in with your username and password. All system changes, booking records, and reviews are preserved.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleProfileAdminSignOut}
+                  className="btn btn-outline-danger profile-signout-btn admin-signout-btn"
+                >
+                  <LogOutIcon size={16} /> Admin Out
+                </button>
               </div>
             </div>
           )}
