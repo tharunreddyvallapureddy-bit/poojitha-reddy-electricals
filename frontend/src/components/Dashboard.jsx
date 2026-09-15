@@ -57,6 +57,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
       pincode: user?.address?.pincode || '',
     }
   });
+  const [pendingAvatar, setPendingAvatar] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
 
@@ -100,7 +101,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
     }
     fetchMyBookings();
     fetchLatestProfile();
-  }, [user]);
+  }, [user?._id || user?.id || user?.email]);
 
   const fetchMyBookings = async () => {
     try {
@@ -132,24 +133,25 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setProfileData({
-          name: data.name || user?.name || '',
-          phone: data.phone || user?.phone || '',
-          email: data.email || user?.email || '',
-          avatar: data.avatar || user?.avatar || '',
-          alternatePhone: data.alternatePhone || user?.alternatePhone || '',
-          gender: data.gender || user?.gender || 'Prefer not to say',
-          dob: data.dob || user?.dob || '',
+        setProfileData((prev) => ({
+          ...prev,
+          name: data.name || prev.name || '',
+          phone: data.phone || prev.phone || '',
+          email: data.email || prev.email || '',
+          avatar: data.avatar || prev.avatar || '',
+          alternatePhone: data.alternatePhone || prev.alternatePhone || '',
+          gender: data.gender || prev.gender || 'Prefer not to say',
+          dob: data.dob || prev.dob || '',
           address: {
-            addressType: data.address?.addressType || 'Home',
-            street: data.address?.street || '',
-            landmark: data.address?.landmark || '',
-            villageTown: data.address?.villageTown || '',
-            district: data.address?.district || '',
-            state: data.address?.state || 'Andhra Pradesh',
-            pincode: data.address?.pincode || '',
+            addressType: data.address?.addressType || prev.address?.addressType || 'Home',
+            street: data.address?.street || prev.address?.street || '',
+            landmark: data.address?.landmark || prev.address?.landmark || '',
+            villageTown: data.address?.villageTown || prev.address?.villageTown || '',
+            district: data.address?.district || prev.address?.district || '',
+            state: data.address?.state || prev.address?.state || 'Andhra Pradesh',
+            pincode: data.address?.pincode || prev.address?.pincode || '',
           }
-        });
+        }));
         if (data.notifications) {
           setNotifications(data.notifications);
         }
@@ -182,17 +184,12 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
         ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, MAX_DIM, MAX_DIM);
         
         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-        setProfileData((prev) => ({ ...prev, avatar: compressedBase64 }));
-        setProfileMsg({ type: 'info', text: '📸 Photo loaded! Click "Save Changes" below to save.' });
+        setPendingAvatar(compressedBase64);
+        setProfileMsg({ type: 'info', text: '📸 New photo selected! Click "Save Changes" below to update your profile photo.' });
       };
       img.src = uploadEvent.target.result;
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleRemoveAvatar = () => {
-    setProfileData((prev) => ({ ...prev, avatar: '' }));
-    setProfileMsg({ type: 'info', text: 'Reset avatar to default picture. Click "Save Changes" to save.' });
   };
 
   const handleProfileSignOut = () => {
@@ -214,17 +211,26 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
     setProfileLoading(true);
     setProfileMsg({ type: '', text: '' });
 
+    // Determine final avatar: if a new photo was selected, commit it; otherwise retain current
+    const finalAvatar = pendingAvatar !== null 
+      ? pendingAvatar 
+      : (profileData.avatar || user?.avatar || '');
+
     const updatedUser = {
       ...user,
       name: profileData.name || user?.name || '',
       phone: profileData.phone || user?.phone || '',
-      avatar: profileData.avatar,
+      avatar: finalAvatar,
       alternatePhone: profileData.alternatePhone,
       gender: profileData.gender,
       dob: profileData.dob,
       address: profileData.address,
       notifications: notifications || user?.notifications,
     };
+
+    // Update local state and clear pending avatar
+    setProfileData((prev) => ({ ...prev, avatar: finalAvatar }));
+    setPendingAvatar(null);
 
     // 1. Immediately persist to LocalStorage and React state
     try {
@@ -264,7 +270,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
           body: JSON.stringify({
             name: profileData.name,
             phone: profileData.phone,
-            avatar: profileData.avatar,
+            avatar: finalAvatar,
             alternatePhone: profileData.alternatePhone,
             gender: profileData.gender,
             dob: profileData.dob,
@@ -283,7 +289,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
       console.warn('Backend REST API sync notice (saved locally and in Firestore):', apiErr);
     }
 
-    setProfileMsg({ type: 'success', text: '✅ Profile & Address details saved successfully!' });
+    setProfileMsg({ type: 'success', text: '✅ Profile photo & changes saved successfully!' });
     setProfileLoading(false);
   };
 
@@ -645,7 +651,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
               <div className="profile-avatar-preview-wrap">
                 <div className="profile-avatar-ring">
                   <img
-                    src={profileData.avatar || user?.avatar || DEFAULT_AVATAR_SRC}
+                    src={pendingAvatar || profileData.avatar || user?.avatar || DEFAULT_AVATAR_SRC}
                     alt={profileData.name || 'User Profile'}
                     className="profile-avatar-img"
                     onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
@@ -654,7 +660,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
                     type="button"
                     className="avatar-camera-btn"
                     onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                    title="Upload or Change Photo"
+                    title="Change Photo"
                   >
                     <CameraIcon size={16} />
                   </button>
@@ -663,9 +669,11 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
               <div className="profile-avatar-actions">
                 <h4 style={{ margin: '0 0 4px', fontSize: '1.05rem', color: '#fff' }}>Profile Photo</h4>
                 <p className="text-secondary" style={{ fontSize: '0.88rem', margin: '0 0 12px' }}>
-                  Personalize your account. Accepted formats: JPG, PNG, WebP (Max 3MB).
+                  {pendingAvatar 
+                    ? '✨ New photo selected! Click "Save Changes" below to update.' 
+                    : 'Personalize your account. Accepted formats: JPG, PNG, WebP (Max 8MB).'}
                 </p>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -680,15 +688,6 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
                   >
                     <CameraIcon size={15} /> Change Photo
                   </button>
-                  {profileData.avatar && (
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-reset-avatar btn-sm"
-                      onClick={handleRemoveAvatar}
-                    >
-                      Reset to Default
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
@@ -882,7 +881,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
 
             <div style={{ marginTop: '16px' }}>
               <button type="submit" className="btn btn-primary btn-lg-glow" disabled={profileLoading}>
-                {profileLoading ? 'Saving Changes...' : 'Save Profile & Address Details'}
+                {profileLoading ? 'Saving Changes...' : 'Save Changes'}
               </button>
             </div>
           </form>
