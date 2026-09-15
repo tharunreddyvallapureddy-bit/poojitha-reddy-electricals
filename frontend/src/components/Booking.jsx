@@ -406,15 +406,25 @@ const Booking = ({ user, API_URL }) => {
               <label className="form-label">
                 <CalendarIcon size={14} /> Preferred Visit Date <span className="required">*</span>
               </label>
-              <input
-                type="date"
-                name="bookingDate"
-                value={formData.bookingDate}
-                onChange={handleChange}
-                className="form-input"
-                required
-                min={new Date().toISOString().split('T')[0]} // Block past dates
-              />
+              <div className="date-input-wrapper">
+                <input
+                  type="date"
+                  name="bookingDate"
+                  value={formData.bookingDate}
+                  onChange={handleChange}
+                  className="form-input custom-date-input"
+                  required
+                  min={new Date().toISOString().split('T')[0]} // Block past dates
+                  onClick={(e) => {
+                    try {
+                      if (e.target.showPicker) e.target.showPicker();
+                    } catch (err) {}
+                  }}
+                />
+                <span className="date-picker-custom-icon" aria-hidden="true">
+                  <CalendarIcon size={18} />
+                </span>
+              </div>
             </div>
           </div>
 
