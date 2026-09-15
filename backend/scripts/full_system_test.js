@@ -333,6 +333,14 @@ async function run() {
     const publicReviews = await request('/api/reviews');
     const isApprovedVisible = publicReviews.data.some(r => r._id === createdReview._id || r.customerName === testUser.name);
     assert(publicReviews.status === 200 && isApprovedVisible, `Approved review is now live on public homepage!`);
+
+    // 21. Clean up test review so it doesn't clutter public reviews
+    console.log("\n21. Cleaning up test review...");
+    const delReviewRes = await request(`/api/reviews/${createdReview._id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    assert(delReviewRes.status === 200, `Test review removed from public database`);
   }
 
   console.log("\n===============================================================");
