@@ -729,7 +729,7 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
                   <select
                     value={profileData.gender}
                     onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
-                    className="form-input"
+                    className="form-input form-select"
                   >
                     <option value="Prefer not to say">Prefer not to say</option>
                     <option value="Male">Male</option>

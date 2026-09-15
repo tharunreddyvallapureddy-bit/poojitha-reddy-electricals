@@ -271,9 +271,31 @@ button, input, textarea, select {
   box-shadow: 0 0 12px var(--accent-purple-glow);
 }
 
-.form-select option {
-  background-color: #0d0d18;
-  color: var(--text-primary);
+/* Select Option Dropdowns - Crisp Black / Neon Black Font on Light Popup Menu */
+select option,
+.form-select option,
+.form-input option,
+option {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+}
+
+select option:checked,
+.form-select option:checked,
+option:checked {
+  background-color: #e2e8f0 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+select option:hover,
+.form-select option:hover,
+option:hover {
+  background-color: #f1f5f9 !important;
+  color: #000000 !important;
 }
 
 /* Date & Time Inputs - Pure White Calendar Selection Symbol */
