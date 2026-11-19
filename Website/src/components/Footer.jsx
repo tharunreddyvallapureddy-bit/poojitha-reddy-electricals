@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BrandLogo, PhoneIcon, MapPinIcon } from './Icons';
+import { BrandLogo, PhoneIcon, MapPinIcon, SmartphoneIcon } from './Icons';
 
 const Footer = () => {
   return (
@@ -52,6 +52,15 @@ const Footer = () => {
         <div className="container footer-bottom-flex">
           <p>&copy; {new Date().getFullYear()} Poojitha Reddy Electricals. All rights reserved.</p>
           <div className="footer-bottom-links">
+            <a 
+              href="./Poojitha-Reddy-Electricals.apk" 
+              download="Poojitha-Reddy-Electricals.apk" 
+              className="footer-download-link"
+              title="Download Android Mobile App (APK)"
+            >
+              <SmartphoneIcon size={14} /> Download Mobile App (APK)
+            </a>
+            <span style={{ opacity: 0.3 }}>|</span>
             <Link to="/admin-login" className="footer-admin-link">Admin Portal</Link>
           </div>
         </div>

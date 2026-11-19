@@ -3586,3 +3586,129 @@ input:checked + .switch-slider:before {
 [data-theme="light"] .footer-links a:hover {
   color: #0f172a !important;
 }
+
+/* ==========================================================================
+   MOBILE APP DOWNLOAD BUTTONS & BADGES
+   ========================================================================== */
+
+.nav-download-app-pill {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 15px !important;
+  border-radius: 20px !important;
+  background: rgba(0, 225, 255, 0.08);
+  border: 1px solid rgba(0, 225, 255, 0.35) !important;
+  color: var(--accent-cyan) !important;
+  font-weight: 700 !important;
+  font-size: 0.88rem !important;
+  transition: var(--transition-smooth);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-download-app-pill:hover {
+  background: rgba(0, 225, 255, 0.18) !important;
+  border-color: var(--accent-cyan) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 18px rgba(0, 225, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.nav-apk-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+[data-theme="light"] .nav-download-app-pill {
+  background: rgba(2, 132, 199, 0.08) !important;
+  border-color: rgba(2, 132, 199, 0.35) !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .nav-download-app-pill:hover {
+  background: rgba(2, 132, 199, 0.18) !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 18px rgba(2, 132, 199, 0.25);
+}
+
+.dropdown-app-item {
+  background: rgba(0, 225, 255, 0.05) !important;
+  border: 1px solid rgba(0, 225, 255, 0.15) !important;
+  border-radius: 12px !important;
+  margin: 6px 0 !important;
+  transition: var(--transition-smooth);
+}
+
+.dropdown-app-item:hover {
+  background: rgba(0, 225, 255, 0.12) !important;
+  border-color: rgba(0, 225, 255, 0.4) !important;
+}
+
+[data-theme="light"] .dropdown-app-item {
+  background: rgba(2, 132, 199, 0.05) !important;
+  border: 1px solid rgba(2, 132, 199, 0.18) !important;
+}
+
+[data-theme="light"] .dropdown-app-item:hover {
+  background: rgba(2, 132, 199, 0.12) !important;
+  border-color: rgba(2, 132, 199, 0.45) !important;
+}
+
+.btn-hero-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 225, 255, 0.08);
+  border: 1px solid rgba(0, 225, 255, 0.25);
+  color: var(--text-primary);
+}
+
+.btn-hero-download:hover {
+  background: rgba(0, 225, 255, 0.18);
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 16px var(--accent-cyan-glow);
+  transform: translateY(-2px);
+}
+
+[data-theme="light"] .btn-hero-download {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: #0f172a;
+}
+
+[data-theme="light"] .btn-hero-download:hover {
+  background: rgba(2, 132, 199, 0.16);
+  border-color: #0284c7;
+  color: #0369a1;
+}
+
+.footer-download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.footer-download-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+[data-theme="light"] .footer-download-link {
+  color: #0284c7;
+}
+
+[data-theme="light"] .footer-download-link:hover {
+  color: #0369a1;
+}

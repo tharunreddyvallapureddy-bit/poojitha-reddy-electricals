@@ -270,3 +270,19 @@ export const MonitorIcon = (props) => (
   </SVG>
 );
 
+export const SmartphoneIcon = (props) => (
+  <SVG {...props}>
+    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+    <line x1="12" y1="18" x2="12.01" y2="18" />
+  </SVG>
+);
+
+export const DownloadIcon = (props) => (
+  <SVG {...props}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </SVG>
+);
+
+

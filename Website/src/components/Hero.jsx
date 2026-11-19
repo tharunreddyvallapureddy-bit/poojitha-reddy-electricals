@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PhoneIcon, ZapIcon, ToolIcon } from './Icons';
+import { PhoneIcon, ZapIcon, ToolIcon, SmartphoneIcon } from './Icons';
 
 const Hero = ({ user }) => {
   return (
@@ -42,6 +42,15 @@ const Hero = ({ user }) => {
             <Link to={user ? "/track" : "/auth?redirect=track"} className="btn btn-secondary">
               Track Booking Status
             </Link>
+            <a 
+              href="./Poojitha-Reddy-Electricals.apk" 
+              download="Poojitha-Reddy-Electricals.apk" 
+              className="btn btn-secondary btn-hero-download"
+              title="Download Android Mobile App (APK)"
+            >
+              <SmartphoneIcon size={18} className="text-cyan" />
+              <span>Get Mobile App</span>
+            </a>
           </div>
         </div>
 

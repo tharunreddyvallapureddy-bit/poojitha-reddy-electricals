@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   BrandLogo, UserIcon, LogOutIcon, LockIcon, ChevronDownIcon, 
-  ClipboardIcon, KeyIcon, BellIcon, MapPinIcon, ShieldCheckIcon 
+  ClipboardIcon, KeyIcon, BellIcon, MapPinIcon, ShieldCheckIcon,
+  SmartphoneIcon, DownloadIcon
 } from './Icons';
 import ThemeSelector from './ThemeSelector';
 import { DEFAULT_AVATAR_SRC } from '../assets/defaultAvatarBase64';
@@ -140,6 +141,20 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
                 <span>Customer Website</span>
               </Link>
             )}
+            <a
+              href="./Poojitha-Reddy-Electricals.apk"
+              download="Poojitha-Reddy-Electricals.apk"
+              className="dropdown-item dropdown-app-item"
+              onClick={() => { setAdminMenuOpen(false); setMobileMenuOpen(false); }}
+              title="Download Android Mobile App (APK)"
+            >
+              <SmartphoneIcon size={16} className="dropdown-item-icon text-cyan" />
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <span style={{ fontWeight: 600 }}>Download Mobile App</span>
+                <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Android APK (8.5 MB)</small>
+              </div>
+              <DownloadIcon size={14} className="text-cyan" />
+            </a>
           </div>
 
           <div className="dropdown-divider"></div>
@@ -199,6 +214,17 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
               <Link to="/admin-dashboard" className="nav-link admin-active-link" onClick={() => setMobileMenuOpen(false)}>
                 Admin Panel
               </Link>
+              <a 
+                href="./Poojitha-Reddy-Electricals.apk" 
+                download="Poojitha-Reddy-Electricals.apk" 
+                className="nav-link nav-download-app-pill" 
+                onClick={() => setMobileMenuOpen(false)}
+                title="Download Android Mobile App (APK)"
+              >
+                <SmartphoneIcon size={16} className="text-cyan" />
+                <span>Download App</span>
+                <span className="nav-apk-tag">APK</span>
+              </a>
               <span className="nav-divider"></span>
               {admin && renderAdminProfile()}
             </>
@@ -219,6 +245,17 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
               <button onClick={() => handleNavClick('contact')} className="nav-link-btn">
                 Contact
               </button>
+              <a 
+                href="./Poojitha-Reddy-Electricals.apk" 
+                download="Poojitha-Reddy-Electricals.apk" 
+                className="nav-link nav-download-app-pill" 
+                onClick={() => setMobileMenuOpen(false)}
+                title="Download Android Mobile App (APK)"
+              >
+                <SmartphoneIcon size={16} className="text-cyan" />
+                <span>Download App</span>
+                <span className="nav-apk-tag">APK</span>
+              </a>
 
               <span className="nav-divider"></span>
 
@@ -325,6 +362,21 @@ const Navbar = ({ user, admin, logoutUser, logoutAdmin }) => {
                           <BellIcon size={16} className="dropdown-item-icon text-cyan" />
                           <span>Notification Settings</span>
                         </Link>
+
+                        <a
+                          href="./Poojitha-Reddy-Electricals.apk"
+                          download="Poojitha-Reddy-Electricals.apk"
+                          className="dropdown-item dropdown-app-item"
+                          onClick={() => { setProfileMenuOpen(false); setMobileMenuOpen(false); }}
+                          title="Download Android Mobile App (APK)"
+                        >
+                          <SmartphoneIcon size={16} className="dropdown-item-icon text-cyan" />
+                          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                            <span style={{ fontWeight: 600 }}>Download Mobile App</span>
+                            <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Android APK (8.5 MB)</small>
+                          </div>
+                          <DownloadIcon size={14} className="text-cyan" />
+                        </a>
                       </div>
 
                       <div className="dropdown-divider"></div>
