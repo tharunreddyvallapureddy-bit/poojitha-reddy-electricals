@@ -119,8 +119,8 @@ function MobileLayout({ user, setUser, admin, setAdmin, logoutUser, logoutAdmin 
         </Suspense>
       </main>
 
-      {/* Floating Emergency Call FAB: Visible only on Customer pages, Hidden on Admin pages */}
-      {!isAdminPage && (
+      {/* Floating Emergency Call FAB: Visible on Home view so it doesn't block forms/buttons */}
+      {!isAdminPage && location.pathname === '/' && (
         <a href="tel:8498870697" className="mobile-fab-call" title="Emergency Electrician Call">
           <PhoneIcon size={22} />
         </a>
