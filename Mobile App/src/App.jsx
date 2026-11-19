@@ -56,6 +56,82 @@ const isTokenValid = (token) => {
   }
 };
 
+function MobileLayout({ user, setUser, admin, setAdmin, logoutUser, logoutAdmin }) {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="mobile-app-root">
+      <MobileHeader user={user} admin={admin} />
+
+      <main className="mobile-main-content">
+        <Suspense fallback={<MobileLoader />}>
+          <Routes>
+            {/* Home View */}
+            <Route path="/" element={
+              <>
+                <Hero user={user} />
+                <Services user={user} />
+                <Reviews API_URL={API_URL} />
+                <Contact API_URL={API_URL} />
+              </>
+            } />
+
+            {/* Dedicated Reviews View for Bottom Nav */}
+            <Route path="/reviews-view" element={
+              <div style={{ padding: '16px 0 32px' }}>
+                <Reviews API_URL={API_URL} />
+              </div>
+            } />
+
+            {/* Booking Screen */}
+            <Route path="/book" element={
+              user ? <Booking user={user} API_URL={API_URL} /> : <Navigate to="/auth?redirect=book" replace />
+            } />
+
+            {/* Track Screen */}
+            <Route path="/track" element={
+              <TrackRouteWrapper user={user} API_URL={API_URL} />
+            } />
+
+            {/* Customer Auth */}
+            <Route path="/auth" element={
+              <Auth user={user} setUser={setUser} API_URL={API_URL} />
+            } />
+
+            {/* Customer Dashboard */}
+            <Route path="/dashboard" element={
+              user ? <Dashboard user={user} setUser={setUser} API_URL={API_URL} logoutUser={logoutUser} /> : <Navigate to="/auth" />
+            } />
+
+            {/* Admin Login */}
+            <Route path="/admin-login" element={
+              admin ? <Navigate to="/admin-dashboard" /> : <AdminAuth setAdmin={setAdmin} API_URL={API_URL} />
+            } />
+
+            {/* Admin Dashboard */}
+            <Route path="/admin-dashboard" element={
+              admin ? <AdminDashboard admin={admin} setAdmin={setAdmin} API_URL={API_URL} logoutAdmin={logoutAdmin} /> : <Navigate to="/admin-login" />
+            } />
+
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Suspense>
+      </main>
+
+      {/* Floating Emergency Call FAB: Visible only on Customer pages, Hidden on Admin pages */}
+      {!isAdminPage && (
+        <a href="tel:8498870697" className="mobile-fab-call" title="Emergency Electrician Call">
+          <PhoneIcon size={22} />
+        </a>
+      )}
+
+      {/* Fixed Native Bottom Navigation */}
+      <MobileBottomNav user={user} admin={admin} />
+    </div>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
@@ -123,72 +199,14 @@ function App() {
 
   return (
     <HashRouter>
-      <div className="mobile-app-root">
-        <MobileHeader user={user} admin={admin} />
-
-        <main className="mobile-main-content">
-          <Suspense fallback={<MobileLoader />}>
-            <Routes>
-              {/* Home View */}
-              <Route path="/" element={
-                <>
-                  <Hero user={user} />
-                  <Services user={user} />
-                  <Reviews API_URL={API_URL} />
-                  <Contact API_URL={API_URL} />
-                </>
-              } />
-
-              {/* Dedicated Reviews View for Bottom Nav */}
-              <Route path="/reviews-view" element={
-                <div style={{ padding: '16px 0 32px' }}>
-                  <Reviews API_URL={API_URL} />
-                </div>
-              } />
-
-              {/* Booking Screen */}
-              <Route path="/book" element={
-                user ? <Booking user={user} API_URL={API_URL} /> : <Navigate to="/auth?redirect=book" replace />
-              } />
-
-              {/* Track Screen */}
-              <Route path="/track" element={
-                <TrackRouteWrapper user={user} API_URL={API_URL} />
-              } />
-
-              {/* Customer Auth */}
-              <Route path="/auth" element={
-                <Auth user={user} setUser={setUser} API_URL={API_URL} />
-              } />
-
-              {/* Customer Dashboard */}
-              <Route path="/dashboard" element={
-                user ? <Dashboard user={user} setUser={setUser} API_URL={API_URL} logoutUser={logoutUser} /> : <Navigate to="/auth" />
-              } />
-
-              {/* Admin Login */}
-              <Route path="/admin-login" element={
-                admin ? <Navigate to="/admin-dashboard" /> : <AdminAuth setAdmin={setAdmin} API_URL={API_URL} />
-              } />
-
-              {/* Admin Dashboard */}
-              <Route path="/admin-dashboard" element={
-                admin ? <AdminDashboard admin={admin} setAdmin={setAdmin} API_URL={API_URL} logoutAdmin={logoutAdmin} /> : <Navigate to="/admin-login" />
-              } />
-
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Suspense>
-        </main>
-
-        {/* Floating Emergency Call FAB */}
-        <a href="tel:8498870697" className="mobile-fab-call" title="Emergency Electrician Call">
-          <PhoneIcon size={22} />
-        </a>
-
-        {/* Fixed Native Bottom Navigation */}
-        <MobileBottomNav user={user} admin={admin} />
-      </div>
+      <MobileLayout 
+        user={user} 
+        setUser={setUser} 
+        admin={admin} 
+        setAdmin={setAdmin} 
+        logoutUser={logoutUser} 
+        logoutAdmin={logoutAdmin} 
+      />
     </HashRouter>
   );
 }

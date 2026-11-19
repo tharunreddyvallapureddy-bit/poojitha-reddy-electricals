@@ -2594,7 +2594,7 @@ input:checked + .switch-slider:before {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
-  padding: 4px 14px 4px 4px;
+  padding: 4px 16px 4px 5px;
   cursor: pointer;
   color: #fff;
   transition: all 0.25s ease;
@@ -2608,17 +2608,18 @@ input:checked + .switch-slider:before {
 }
 
 .nav-avatar-ring {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  padding: 2px;
+  padding: 1.5px;
   background: linear-gradient(135deg, #182232, #0d131f);
   border: 1.5px solid rgba(0, 225, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
 }
 
 .nav-avatar-img {
@@ -3411,8 +3412,14 @@ input:checked + .switch-slider:before {
 
 [data-theme="light"] .nav-profile-btn {
   background: rgba(15, 23, 42, 0.04) !important;
-  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
   color: #0f172a !important;
+}
+
+[data-theme="light"] .nav-avatar-ring {
+  background: #e2e8f0;
+  border: 1.5px solid #0284c7 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12) !important;
 }
 
 [data-theme="light"] .nav-user-firstname {
