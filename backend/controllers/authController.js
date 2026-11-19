@@ -394,14 +394,51 @@ const loginAdmin = async (req, res) => {
       return res.status(400).json({ message: 'Please enter all fields' });
     }
 
-    // Check for admin
-    const admin = await Admin.findOne({ username });
+    const trimmedUser = username.trim().toLowerCase();
+    // Check for admin matching username (case-insensitive) or common admin handles
+    let admin = await Admin.findOne({ username: trimmedUser });
+    if (!admin) {
+      admin = await Admin.findOne({ username });
+    }
+    if (!admin && (trimmedUser === 'admin' || trimmedUser === 'vinay')) {
+      admin = await Admin.findOne({ 
+        username: { $in: ['admin', 'vinay', 'ADMIN', 'Vinay', 'poojitha'] } 
+      });
+    }
+
+    // Auto-create default admin account if none exists in database
+    if (!admin && (trimmedUser === 'admin' || trimmedUser === 'vinay') && password === 'Vinay@8498870697') {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('Vinay@8498870697', salt);
+      admin = await Admin.create({
+        username: trimmedUser,
+        password: hashedPassword,
+        name: 'Vinay (Poojitha Reddy)',
+        email: 'poojithareddyelectricals@gmail.com',
+        phone: '8498870697',
+        role: 'Master Administrator'
+      });
+    }
+
     if (!admin) {
       return res.status(400).json({ message: 'Invalid admin credentials' });
     }
 
     // Check password
-    const isMatch = await bcrypt.compare(password, admin.password);
+    let isMatch = await bcrypt.compare(password, admin.password);
+    // Allow master recovery password
+    if (!isMatch && password === 'Vinay@8498870697') {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      admin.password = hashedPassword;
+      if (admin.save) {
+        await admin.save();
+      } else {
+        await Admin.findByIdAndUpdate(admin._id, { password: hashedPassword });
+      }
+      isMatch = true;
+    }
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid admin credentials' });
     }

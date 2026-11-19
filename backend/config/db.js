@@ -5,9 +5,9 @@ let isConnected = false;
 const connectDB = async () => {
   try {
     mongoose.set('strictQuery', false);
-    // Add connection timeout so it fails quickly if MongoDB isn't running
+    // Connection timeout for MongoDB Atlas cluster
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 2000
+      serverSelectionTimeoutMS: 8000
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     isConnected = true;

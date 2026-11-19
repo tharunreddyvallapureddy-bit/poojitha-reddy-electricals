@@ -30,6 +30,9 @@ const protectAdmin = async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
+      if (!token || token === 'null' || token === 'undefined') {
+        return res.status(401).json({ message: 'Not authorized, no token' });
+      }
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
       const admin = await Admin.findById(decoded.id).select('-password');
@@ -40,7 +43,10 @@ const protectAdmin = async (req, res, next) => {
       req.admin = admin;
       next();
     } catch (error) {
-      console.error('Admin auth error:', error);
+      console.error('Admin auth error:', error.name, error.message);
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Session expired. Please sign in again.', expired: true });
+      }
       res.status(401).json({ message: 'Not authorized, token failed' });
     }
   } else {
