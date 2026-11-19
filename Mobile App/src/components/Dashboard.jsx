@@ -917,6 +917,20 @@ const Dashboard = ({ user, setUser, API_URL, logoutUser }) => {
               <LogOutIcon size={16} /> Sign Out
             </button>
           </div>
+
+          {/* Admin Control Switcher */}
+          <div style={{ marginTop: '20px', padding: '16px', background: 'rgba(168, 85, 247, 0.06)', border: '1px solid rgba(168, 85, 247, 0.25)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <ShieldCheckIcon size={20} className="text-purple" />
+              <div>
+                <strong style={{ fontSize: '0.95rem' }}>Administrator Portal</strong>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sign in as master administrator to manage bookings and reviews.</p>
+              </div>
+            </div>
+            <Link to="/admin-login" className="btn btn-sm btn-primary">
+              Admin Portal
+            </Link>
+          </div>
         </div>
       )}
 

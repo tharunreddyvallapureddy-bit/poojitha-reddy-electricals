@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BrandLogo, PhoneIcon, UserIcon, ShieldCheckIcon } from './Icons';
+import { BrandLogo, PhoneIcon, UserIcon, ShieldCheckIcon, LockIcon } from './Icons';
 import { DEFAULT_AVATAR_SRC } from '../assets/defaultAvatarBase64';
 
 const MobileHeader = ({ user, admin }) => {
@@ -27,8 +27,8 @@ const MobileHeader = ({ user, admin }) => {
         </a>
 
         {admin ? (
-          <Link to="/admin-dashboard?tab=profile" style={{ display: 'flex' }} title="Admin Profile">
-            <div className="nav-avatar-ring admin-ring" style={{ width: '32px', height: '32px' }}>
+          <Link to="/admin-dashboard" className="mobile-admin-badge-pill" title="Admin Control Panel">
+            <div className="nav-avatar-ring admin-ring" style={{ width: '28px', height: '28px' }}>
               <img
                 src={admin.avatar || DEFAULT_AVATAR_SRC}
                 alt="Admin"
@@ -36,10 +36,18 @@ const MobileHeader = ({ user, admin }) => {
                 onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
               />
             </div>
+            <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--accent-purple)' }}>Admin</span>
           </Link>
-        ) : user ? (
+        ) : (
+          <Link to="/admin-login" className="mobile-admin-lock-btn" title="Admin Portal Login">
+            <LockIcon size={14} />
+            <span>Admin</span>
+          </Link>
+        )}
+
+        {user && !admin && (
           <Link to="/dashboard?tab=profile" style={{ display: 'flex' }} title="Customer Profile">
-            <div className="nav-avatar-ring" style={{ width: '32px', height: '32px' }}>
+            <div className="nav-avatar-ring" style={{ width: '30px', height: '30px' }}>
               <img
                 src={user.avatar || DEFAULT_AVATAR_SRC}
                 alt="Customer"
@@ -48,7 +56,7 @@ const MobileHeader = ({ user, admin }) => {
               />
             </div>
           </Link>
-        ) : null}
+        )}
       </div>
     </header>
   );

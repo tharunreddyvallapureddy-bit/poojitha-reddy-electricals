@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MailIcon, UserIcon, PhoneIcon, LockIcon, EyeIcon, EyeOffIcon } from './Icons';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { MailIcon, UserIcon, PhoneIcon, LockIcon, EyeIcon, EyeOffIcon, ShieldCheckIcon } from './Icons';
 
 const Auth = ({ user, setUser, API_URL }) => {
   const [searchParams] = useSearchParams();
@@ -558,6 +558,29 @@ const Auth = ({ user, setUser, API_URL }) => {
             </div>
           </div>
         )}
+
+        {/* Dedicated Admin Portal Access Link */}
+        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'center' }}>
+          <Link 
+            to="/admin-login" 
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              fontSize: '0.86rem', 
+              color: 'var(--accent-purple)', 
+              fontWeight: '600',
+              textDecoration: 'none',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              background: 'rgba(168, 85, 247, 0.08)',
+              border: '1px solid rgba(168, 85, 247, 0.28)'
+            }}
+          >
+            <ShieldCheckIcon size={16} />
+            <span>Administrator? Sign in to Admin Portal</span>
+          </Link>
+        </div>
 
       </div>
     </div>
