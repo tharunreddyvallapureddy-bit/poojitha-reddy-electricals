@@ -32,10 +32,19 @@ const MobileHeader = ({ user, admin }) => {
         )}
 
         {isAdminPage ? (
-          <Link to="/" className="mobile-exit-admin-btn" title="View Customer App">
-            <UserIcon size={14} />
-            <span>Customer View</span>
-          </Link>
+          admin && (
+            <Link to="/admin-dashboard?tab=profile" className="mobile-admin-badge-pill" title="Admin Profile & Security">
+              <div className="nav-avatar-ring admin-ring" style={{ width: '28px', height: '28px' }}>
+                <img
+                  src={admin.avatar || DEFAULT_AVATAR_SRC}
+                  alt="Admin"
+                  className="nav-avatar-img"
+                  onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
+                />
+              </div>
+              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--accent-purple)' }}>Admin</span>
+            </Link>
+          )
         ) : admin ? (
           <Link to="/admin-dashboard" className="mobile-admin-badge-pill" title="Admin Control Panel">
             <div className="nav-avatar-ring admin-ring" style={{ width: '28px', height: '28px' }}>

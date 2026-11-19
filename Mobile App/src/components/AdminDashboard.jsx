@@ -500,79 +500,9 @@ const AdminDashboard = ({ admin, setAdmin, API_URL, logoutAdmin }) => {
   const pendingMessagesCount = messages.filter((m) => !m.isResolved).length;
 
   return (
-    <div className="section container">
-      {/* Admin Panel Header */}
-      <div className="dashboard-header glass-card admin-dashboard-header" style={{ marginBottom: '32px' }}>
-        <div className="header-user-info">
-          <div className="dashboard-avatar-ring admin-avatar-ring">
-            <img 
-              src={admin?.avatar || DEFAULT_AVATAR_SRC} 
-              alt="Admin Profile" 
-              className="dashboard-avatar-img"
-              onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
-            />
-            <span className="dashboard-avatar-badge admin-avatar-badge" title="Verified Administrator">
-              <ShieldCheckIcon size={14} />
-            </span>
-          </div>
-          <div>
-            <span className="welcome-label text-purple">ADMIN CONTROL CENTRE</span>
-            <h2>Welcome Back, {admin?.name || (admin?.username ? admin.username.toUpperCase() : 'Administrator')}!</h2>
-          </div>
-        </div>
-
-        <div className="admin-quick-stats">
-          <div className="admin-quick-stat-item">
-            <span className="stat-label">Pending Bookings</span>
-            <span className="stat-val text-warning">{pendingBookingsCount}</span>
-          </div>
-          <div className="admin-quick-stat-item">
-            <span className="stat-label">Pending Inquiries</span>
-            <span className="stat-val text-cyan">{pendingMessagesCount}</span>
-          </div>
-          <div className="admin-quick-stat-item">
-            <span className="stat-label">Pending Reviews</span>
-            <span className="stat-val text-purple">{reviews.length}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="admin-tab-nav">
-        <button 
-          onClick={() => handleTabChange('bookings')} 
-          className={`admin-tab-btn ${activeTab === 'bookings' ? 'active' : ''}`}
-        >
-          Bookings ({bookings.length})
-        </button>
-        <button 
-          onClick={() => handleTabChange('reviews')} 
-          className={`admin-tab-btn ${activeTab === 'reviews' ? 'active text-purple-accent' : ''}`}
-        >
-          Review Moderation ({reviews.length})
-        </button>
-        <button 
-          onClick={() => handleTabChange('messages')} 
-          className={`admin-tab-btn ${activeTab === 'messages' ? 'active text-cyan-accent' : ''}`}
-        >
-          Inbox Messages ({messages.length})
-        </button>
-        <button 
-          onClick={() => handleTabChange('overview')} 
-          className={`admin-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-        >
-          System Overview
-        </button>
-        <button 
-          onClick={() => handleTabChange('profile')} 
-          className={`admin-tab-btn ${activeTab === 'profile' ? 'active text-purple-accent' : ''}`}
-        >
-          <UserIcon size={15} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} /> Admin Profile & Security
-        </button>
-      </div>
-
+    <div className="section container mobile-admin-page">
       {error && (
-        <div className="alert-box alert-danger" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="alert-box alert-danger" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
           <span>⚠️ {error}</span>
           {(error.toLowerCase().includes('token') || error.toLowerCase().includes('authorized') || error.toLowerCase().includes('expired') || error.toLowerCase().includes('session')) && (
             <button 
@@ -850,12 +780,20 @@ const AdminDashboard = ({ admin, setAdmin, API_URL, logoutAdmin }) => {
                   <span className="metric-val text-success">{completedBookingsCount}</span>
                 </div>
                 <div className="metric-box glass-card">
-                  <span className="metric-title">Active (Accepted & Progress)</span>
+                  <span className="metric-title">Active Work</span>
                   <span className="metric-val text-cyan">{acceptedBookingsCount + inProgressBookingsCount}</span>
                 </div>
                 <div className="metric-box glass-card">
-                  <span className="metric-title">Pending Approvals</span>
+                  <span className="metric-title">Pending Bookings</span>
                   <span className="metric-val text-warning">{pendingBookingsCount}</span>
+                </div>
+                <div className="metric-box glass-card">
+                  <span className="metric-title">Pending Inquiries</span>
+                  <span className="metric-val text-cyan">{pendingMessagesCount}</span>
+                </div>
+                <div className="metric-box glass-card">
+                  <span className="metric-title">Pending Reviews</span>
+                  <span className="metric-val text-purple">{reviews.length}</span>
                 </div>
               </div>
 

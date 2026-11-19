@@ -235,6 +235,35 @@ input, textarea, p, span, .selectable {
   background: rgba(147, 51, 234, 0.15) !important;
 }
 
+/* Native Mobile Admin Individual Page Layout */
+.mobile-admin-page {
+  padding-top: 12px !important;
+  padding-bottom: 24px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+.mobile-admin-page .admin-tab-content {
+  padding: 18px 14px !important;
+  border-radius: 20px !important;
+  background: rgba(18, 20, 32, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="light"] .mobile-admin-page .admin-tab-content {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.mobile-admin-page .panel-title {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 16px !important;
+  letter-spacing: -0.01em;
+}
+
 /* Floating Call Button for Urgent Electrical Service */
 .mobile-fab-call {
   position: fixed;
