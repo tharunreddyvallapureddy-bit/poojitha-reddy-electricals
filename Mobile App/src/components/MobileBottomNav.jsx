@@ -38,12 +38,6 @@ const MobileBottomNav = ({ user, admin }) => {
         label: 'Reviews',
         icon: StarIcon,
       },
-      {
-        to: '/admin-dashboard?tab=profile',
-        id: 'profile',
-        label: 'Profile',
-        icon: ShieldCheckIcon,
-      },
     ];
 
     return (

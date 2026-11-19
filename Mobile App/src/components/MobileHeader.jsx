@@ -33,21 +33,40 @@ const MobileHeader = ({ user, admin }) => {
 
         {isAdminPage ? (
           admin && (
-            <Link to="/admin-dashboard?tab=profile" className="mobile-admin-badge-pill" title="Admin Profile & Security">
-              <div className="nav-avatar-ring admin-ring" style={{ width: '28px', height: '28px' }}>
+            <Link
+              to="/admin-dashboard?tab=profile"
+              className={`mobile-admin-avatar-link ${location.search.includes('tab=profile') ? 'active' : ''}`}
+              title="Admin Profile & Security"
+            >
+              <div
+                className="nav-avatar-ring admin-ring"
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  boxShadow: location.search.includes('tab=profile')
+                    ? '0 0 14px var(--accent-purple)'
+                    : '0 2px 8px rgba(168, 85, 247, 0.35)'
+                }}
+              >
                 <img
                   src={admin.avatar || DEFAULT_AVATAR_SRC}
-                  alt="Admin"
+                  alt="Admin Profile"
                   className="nav-avatar-img"
                   onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
                 />
               </div>
-              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--accent-purple)' }}>Admin</span>
             </Link>
           )
         ) : admin ? (
-          <Link to="/admin-dashboard" className="mobile-admin-badge-pill" title="Admin Control Panel">
-            <div className="nav-avatar-ring admin-ring" style={{ width: '28px', height: '28px' }}>
+          <Link
+            to="/admin-dashboard?tab=bookings"
+            className="mobile-admin-avatar-link"
+            title="Admin Control Panel"
+          >
+            <div
+              className="nav-avatar-ring admin-ring"
+              style={{ width: '34px', height: '34px' }}
+            >
               <img
                 src={admin.avatar || DEFAULT_AVATAR_SRC}
                 alt="Admin"
@@ -55,7 +74,6 @@ const MobileHeader = ({ user, admin }) => {
                 onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR_SRC; }}
               />
             </div>
-            <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--accent-purple)' }}>Admin</span>
           </Link>
         ) : (
           <Link to="/admin-login" className="mobile-admin-lock-btn" title="Admin Portal Login">
